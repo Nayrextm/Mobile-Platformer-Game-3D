@@ -12,7 +12,11 @@ public class MainMenuController : MonoBehaviour
 
     void Start()
     {
+
         if (settingsPanel != null) settingsPanel.SetActive(false);
+
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
     }
 
     // Метод для програвання звуку кліку з правильною гучністю

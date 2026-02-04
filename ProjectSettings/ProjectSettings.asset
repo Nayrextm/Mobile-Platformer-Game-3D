@@ -165,6 +165,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
+    Android: com.DefaultCompany.PlatformerGame3D
     Standalone: com.DefaultCompany.Platformer-Game-3D
   buildNumber:
     Standalone: 0
