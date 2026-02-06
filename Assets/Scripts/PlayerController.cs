@@ -1254,23 +1254,57 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDead) return;
+        //if (isDead) return;
 
-        // ============================================
-        // ---> ЛОГІКА ЗІПЛАЙНУ <---
-        // ============================================
+        //// ============================================
+        //// ---> ЛОГІКА ЗІПЛАЙНУ <---
+        //// ============================================
+        //if (isZiplineMode && currentZipline != null)
+        //{
+        //    Vector3 zipDirection = currentZipline.right;
+        //    Vector3 targetVelocity = zipDirection * (ziplineBaseSpeed * currentZiplineSpeedMod);
+        //    rb.velocity = targetVelocity;
+
+        //    Vector3 zipOrigin = currentZipline.position;
+        //    Vector3 playerDelta = transform.position - zipOrigin;
+        //    Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
+        //    Vector3 idealPosition = zipOrigin + projectedDelta;
+        //    Vector3 smoothedPos = Vector3.Lerp(transform.position, idealPosition, Time.fixedDeltaTime * ziplineSnapSpeed);
+
+        //    rb.MovePosition(smoothedPos);
+
+        //    if (visualModel != null)
+        //    {
+        //        Quaternion targetRot = Quaternion.LookRotation(zipDirection);
+        //        visualModel.rotation = Quaternion.Lerp(visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
+        //    }
+
+        //    return;
+        //}
+
         if (isZiplineMode && currentZipline != null)
         {
+            // 1. Отримуємо напрямок
             Vector3 zipDirection = currentZipline.right;
-            Vector3 targetVelocity = zipDirection * (ziplineBaseSpeed * currentZiplineSpeedMod);
-            rb.velocity = targetVelocity;
 
+            // ❌ ВИДАЛЕНО: rb.velocity = targetVelocity; 
+            // Це прибере помилку в консолі.
+
+            // 2. Розраховуємо ідеальну позицію на лінії (Snap)
             Vector3 zipOrigin = currentZipline.position;
             Vector3 playerDelta = transform.position - zipOrigin;
             Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
-            Vector3 idealPosition = zipOrigin + projectedDelta;
-            Vector3 smoothedPos = Vector3.Lerp(transform.position, idealPosition, Time.fixedDeltaTime * ziplineSnapSpeed);
+            Vector3 idealPositionOnLine = zipOrigin + projectedDelta;
 
+            // 3. Додаємо рух ВПЕРЕД до ідеальної позиції
+            // Оскільки ми не використовуємо velocity, ми самі кажемо, на скільки посунутись
+            float stepDistance = (ziplineBaseSpeed * currentZiplineSpeedMod) * Time.fixedDeltaTime;
+            Vector3 nextPosition = idealPositionOnLine + (zipDirection * stepDistance);
+
+            // 4. Плавне згладжування (щоб не було різкого притягування)
+            Vector3 smoothedPos = Vector3.Lerp(transform.position, nextPosition, Time.fixedDeltaTime * ziplineSnapSpeed);
+
+            // 5. Використовуємо ТІЛЬКИ MovePosition
             rb.MovePosition(smoothedPos);
 
             if (visualModel != null)
@@ -1281,25 +1315,57 @@ public class PlayerController : MonoBehaviour
 
             return;
         }
-        // ============================================
 
-        // ---> STANDARD PHYSICS
-        Vector3 customGravity = Vector3.down * gravityForce * gravityScale;
-        rb.AddForce(customGravity, ForceMode.Acceleration);
+        //// ============================================
 
-        Vector3 currentVel = rb.velocity;
-        currentVel.x = forwardSpeed;
+        //// ---> STANDARD PHYSICS
+        //Vector3 customGravity = Vector3.down * gravityForce * gravityScale;
+        //rb.AddForce(customGravity, ForceMode.Acceleration);
 
-        if (jumpRequested)
+        //Vector3 currentVel = rb.velocity;
+        //currentVel.x = forwardSpeed;
+
+        //if (jumpRequested)
+        //{
+        //    currentVel.y = jumpForce * gravityScale;
+        //    if (jumpParticles) jumpParticles.Play();
+        //    if (audioSource && jumpSfx) audioSource.PlayOneShot(jumpSfx);
+        //    jumpRequested = false;
+        //    coyoteTimeCounter = 0f;
+        //}
+        //rb.velocity = currentVel;
+
+        //CheckFrontCollision();
+        //GroundCheck();
+        if (!rb.isKinematic)
         {
-            currentVel.y = jumpForce * gravityScale;
-            if (jumpParticles) jumpParticles.Play();
-            if (audioSource && jumpSfx) audioSource.PlayOneShot(jumpSfx);
-            jumpRequested = false;
-            coyoteTimeCounter = 0f;
-        }
-        rb.velocity = currentVel;
+            // 1. Додаємо гравітацію
+            Vector3 customGravity = Vector3.down * gravityForce * gravityScale;
+            rb.AddForce(customGravity, ForceMode.Acceleration);
 
+            // 2. Читаємо поточну швидкість
+            Vector3 currentVel = rb.velocity;
+
+            // 3. Встановлюємо швидкість вперед
+            currentVel.x = forwardSpeed;
+
+            // 4. Логіка стрибка
+            if (jumpRequested)
+            {
+                currentVel.y = jumpForce * gravityScale;
+                if (jumpParticles) jumpParticles.Play();
+                if (audioSource && jumpSfx) audioSource.PlayOneShot(jumpSfx);
+                jumpRequested = false;
+                coyoteTimeCounter = 0f;
+            }
+
+            // 5. ПРИЗНАЧАЄМО ШВИДКІСТЬ (це саме той рядок, що викликав помилку)
+            rb.velocity = currentVel;
+        }
+
+        // Перевірки мають бути поза блоком if(!rb.isKinematic), 
+        // якщо ти хочеш, щоб вони працювали завжди, 
+        // АБО всередині, якщо вони не потрібні під час зіплайну/смерті.
         CheckFrontCollision();
         GroundCheck();
     }
@@ -1316,9 +1382,22 @@ public class PlayerController : MonoBehaviour
                 EnterZipline(other.transform);
             }
         }
+        //else
+        //{
+        //    HandleTriggerDeath(other);
+        //}
         else
         {
-            HandleTriggerDeath(other);
+            // Пряма перевірка смерті через тригер (найшвидша реєстрація)
+            int hitLayer = other.gameObject.layer;
+            bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || other.CompareTag("Obstacle");
+
+            if (isObstacle)
+            {
+                if (isGhostMode && isPhasing) return;
+                Debug.Log("Trigger Death: Зачепив " + other.name);
+                Die();
+            }
         }
     }
 
@@ -1383,31 +1462,80 @@ public class PlayerController : MonoBehaviour
         if (isObstacle) Die();
     }
 
+    //void CheckFrontCollision()
+    //{
+    //    if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
+    //    RaycastHit hit;
+    //    Vector3 origin = transform.position + (gravityScale > 0 ? Vector3.up : Vector3.down) * 0.5f;
+    //    if (Physics.Raycast(origin, Vector3.right, out hit, 0.6f))
+    //    {
+    //        int hitLayer = hit.collider.gameObject.layer;
+    //        bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || hit.collider.tag == "Obstacle";
+    //        if (isObstacle) Die();
+    //    }
+    //}
     void CheckFrontCollision()
     {
         if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
+
+        // Розраховуємо динамічну довжину променя:
+        // Базова дистанція + відстань, яку гравець проходить за один фізичний кадр
+        float rayLength = 0.6f + (Mathf.Abs(rb.velocity.x) * Time.fixedDeltaTime);
+
         RaycastHit hit;
         Vector3 origin = transform.position + (gravityScale > 0 ? Vector3.up : Vector3.down) * 0.5f;
-        if (Physics.Raycast(origin, Vector3.right, out hit, 0.6f))
+
+        // Малюємо промінь у редакторі (червона лінія), щоб бачити зону детекції
+        Debug.DrawRay(origin, Vector3.right * rayLength, Color.red);
+
+        if (Physics.Raycast(origin, Vector3.right, out hit, rayLength))
         {
             int hitLayer = hit.collider.gameObject.layer;
-            bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || hit.collider.tag == "Obstacle";
-            if (isObstacle) Die();
+            // Перевірка тегу ТА шару
+            bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || hit.collider.CompareTag("Obstacle");
+
+            if (isObstacle)
+            {
+                Debug.Log("Raycast Death: Вдарився об " + hit.collider.name);
+                Die();
+            }
         }
     }
+
+    //void OnCollisionEnter(Collision collision)
+    //{
+    //    if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
+    //    int hitLayer = collision.gameObject.layer;
+    //    bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || collision.gameObject.CompareTag("Obstacle");
+    //    if (isObstacle)
+    //    {
+    //        foreach (ContactPoint contact in collision.contacts)
+    //        {
+    //            if (gravityScale > 0 && contact.normal.y > 0.7f) return;
+    //            if (gravityScale < 0 && contact.normal.y < -0.7f) return;
+    //        }
+    //        Die();
+    //    }
+    //}
 
     void OnCollisionEnter(Collision collision)
     {
         if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
+
         int hitLayer = collision.gameObject.layer;
         bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || collision.gameObject.CompareTag("Obstacle");
+
         if (isObstacle)
         {
             foreach (ContactPoint contact in collision.contacts)
             {
+                // Якщо ми торкнулися верхньої поверхні перешкоди (нормаль дивиться вгору) — ми живемо
+                // Це дозволяє "приземлятися" на блоки-перешкоди, якщо вони не шипи
                 if (gravityScale > 0 && contact.normal.y > 0.7f) return;
                 if (gravityScale < 0 && contact.normal.y < -0.7f) return;
             }
+
+            Debug.Log("Collision Death: Врізався в " + collision.gameObject.name);
             Die();
         }
     }
@@ -1428,19 +1556,50 @@ public class PlayerController : MonoBehaviour
         if (wallLayer != -1) Physics.IgnoreLayerCollision(playerLayer, wallLayer, active);
     }
 
+    //public void Die()
+    //{
+    //    if (isDead) return;
+    //    isDead = true;
+    //    isZiplineMode = false;
+    //    if (myCollider != null) myCollider.enabled = false;
+    //    rb.detectCollisions = false;
+    //    rb.velocity = Vector3.zero;
+    //    rb.angularVelocity = Vector3.zero;
+    //    rb.isKinematic = true;
+    //    if (trail != null) trail.emitting = false;
+    //    if (deathParticles) Instantiate(deathParticles, transform.position, Quaternion.identity);
+    //    if (audioSource && deathSfx) audioSource.PlayOneShot(deathSfx);
+    //    StartCoroutine(DeathAnimation());
+    //}
     public void Die()
     {
         if (isDead) return;
         isDead = true;
         isZiplineMode = false;
-        if (myCollider != null) myCollider.enabled = false;
-        rb.detectCollisions = false;
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+
+        // 1. Зупиняємо сторонні скрипти, які можуть керувати фізикою
+        LaneRunner3D runner = GetComponent<LaneRunner3D>();
+        if (runner != null) runner.enabled = false;
+
+        Debug.Log("Player Died");
+
+        // 2. БЕЗПЕЧНЕ ОБНУЛЕННЯ:
+        // Перевіряємо, чи ми ще не kinematic, перш ніж ставити velocity
+        if (!rb.isKinematic)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        // 3. Тепер робимо тіло кінетичним
         rb.isKinematic = true;
+        rb.detectCollisions = false;
+
+        if (myCollider != null) myCollider.enabled = false;
         if (trail != null) trail.emitting = false;
         if (deathParticles) Instantiate(deathParticles, transform.position, Quaternion.identity);
         if (audioSource && deathSfx) audioSource.PlayOneShot(deathSfx);
+
         StartCoroutine(DeathAnimation());
     }
 
