@@ -1377,25 +1377,19 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Zipline"))
         {
             bool isHolding = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
-            if (isHolding)
-            {
-                EnterZipline(other.transform);
-            }
+            if (isHolding) EnterZipline(other.transform);
         }
-        //else
-        //{
-        //    HandleTriggerDeath(other);
-        //}
         else
         {
-            // Пряма перевірка смерті через тригер (найшвидша реєстрація)
             int hitLayer = other.gameObject.layer;
             bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || other.CompareTag("Obstacle");
 
             if (isObstacle)
             {
                 if (isGhostMode && isPhasing) return;
-                Debug.Log("Trigger Death: Зачепив " + other.name);
+
+                // Тепер ми логуємо саме ім'я об'єкта
+                Debug.Log("<color=red>Trigger Death:</color> Зачепив " + other.gameObject.name);
                 Die();
             }
         }
@@ -1478,27 +1472,18 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
 
-        // Розраховуємо динамічну довжину променя:
-        // Базова дистанція + відстань, яку гравець проходить за один фізичний кадр
-        float rayLength = 0.6f + (Mathf.Abs(rb.velocity.x) * Time.fixedDeltaTime);
+        float rayLength = 0.51f + (Mathf.Abs(rb.velocity.x) * Time.fixedDeltaTime);
+        Vector3 originTop = transform.position + Vector3.up * 0.4f;
+        Vector3 originBottom = transform.position + Vector3.up * -0.4f;
 
         RaycastHit hit;
-        Vector3 origin = transform.position + (gravityScale > 0 ? Vector3.up : Vector3.down) * 0.5f;
+        bool hasHit = Physics.Raycast(originTop, Vector3.right, out hit, rayLength, groundMask | (1 << deadlyLayer)) ||
+                      Physics.Raycast(originBottom, Vector3.right, out hit, rayLength, groundMask | (1 << deadlyLayer));
 
-        // Малюємо промінь у редакторі (червона лінія), щоб бачити зону детекції
-        Debug.DrawRay(origin, Vector3.right * rayLength, Color.red);
-
-        if (Physics.Raycast(origin, Vector3.right, out hit, rayLength))
+        if (hasHit && hit.collider != null && !hit.collider.isTrigger)
         {
-            int hitLayer = hit.collider.gameObject.layer;
-            // Перевірка тегу ТА шару
-            bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || hit.collider.CompareTag("Obstacle");
-
-            if (isObstacle)
-            {
-                Debug.Log("Raycast Death: Вдарився об " + hit.collider.name);
-                Die();
-            }
+            Debug.Log("<color=yellow>Raycast Death:</color> Перешкода попереду - " + hit.collider.gameObject.name);
+            Die();
         }
     }
 
@@ -1522,21 +1507,24 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
 
-        int hitLayer = collision.gameObject.layer;
-        bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || collision.gameObject.CompareTag("Obstacle");
-
-        if (isObstacle)
+        foreach (ContactPoint contact in collision.contacts)
         {
-            foreach (ContactPoint contact in collision.contacts)
-            {
-                // Якщо ми торкнулися верхньої поверхні перешкоди (нормаль дивиться вгору) — ми живемо
-                // Це дозволяє "приземлятися" на блоки-перешкоди, якщо вони не шипи
-                if (gravityScale > 0 && contact.normal.y > 0.7f) return;
-                if (gravityScale < 0 && contact.normal.y < -0.7f) return;
-            }
+            // Приземлення зверху — безпечно
+            if (gravityScale > 0 && contact.normal.y > 0.5f) return;
+            if (gravityScale < 0 && contact.normal.y < -0.5f) return;
 
-            Debug.Log("Collision Death: Врізався в " + collision.gameObject.name);
-            Die();
+            int hitLayer = collision.gameObject.layer;
+            // Якщо це твердий об'єкт (Ground або Wall)
+            if (hitLayer == safeLayer || hitLayer == wallLayer || hitLayer == deadlyLayer)
+            {
+                // Якщо удар був "лобовим" (нормаль спрямована проти руху)
+                if (contact.normal.x < -0.1f)
+                {
+                    Debug.Log("<color=orange>Collision Death:</color> Врізався в бік " + collision.gameObject.name);
+                    Die();
+                    return;
+                }
+            }
         }
     }
 
