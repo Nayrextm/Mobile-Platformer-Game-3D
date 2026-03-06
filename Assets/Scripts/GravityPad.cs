@@ -1,129 +1,124 @@
 using UnityEngine;
-using System.Collections;
-
+using DG.Tweening; 
 public class GravityPad : MonoBehaviour
 {
-    [Header("Interaction Settings")]
-    public LayerMask playerLayer;
-    public float cooldown = 0.2f; // Час перед повторним спрацюванням
+    [Header("Налаштування взаємодії")]
+    [SerializeField] private LayerMask _playerLayer;
+    [SerializeField] private float _cooldown = 0.2f;
 
-    // Чи потрібно підштовхнути гравця від пада, щоб він не "залип" у ньому
-    public bool addPushOff = true;
-    public float pushForce = 5f;
+    [SerializeField] private bool _addPushOff = true;
+    [SerializeField] private float _pushForce = 5f;
 
-    [Header("Visual Settings")]
-    public Renderer padRenderer;
-    public Color defaultColor = Color.cyan; // Блакитний для гравітації
-    public Color activeColor = Color.white;
-    public float glowIntensity = 2f;
-    public float bounceScale = 0.8f;
-    public float animationSpeed = 10f;
+    [Header("Візуальні налаштування")]
+    [SerializeField] private Renderer _padRenderer;
+    [SerializeField] private Color _defaultColor = Color.cyan;
+    [SerializeField] private Color _activeColor = Color.white;
+    [SerializeField] private float _glowIntensity = 2f;
+    [SerializeField] private float _bounceScale = 0.8f;
+    [SerializeField] private float _animationDuration = 0.15f; 
 
-    [Header("Effects")]
-    public ParticleSystem activationEffect;
-    public AudioSource activationSound;
+    [Header("Ефекти")]
+    [SerializeField] private ParticleSystem _activationEffect;
+    [SerializeField] private AudioSource _activationSound;
 
-    private Vector3 originalScale;
-    private Material padMaterial;
-    private float lastActivationTime = -1f;
+    private Vector3 _originalScale;
+    private float _lastActivationTime = -1f;
 
-    private void Start()
+   
+    private MaterialPropertyBlock _propBlock;
+    private static readonly int _emissionColorID = Shader.PropertyToID("_EmissionColor");
+
+    private void Awake()
     {
-        originalScale = transform.localScale;
+        _originalScale = transform.localScale;
+        _propBlock = new MaterialPropertyBlock();
 
-        if (padRenderer != null)
-        {
-            padMaterial = padRenderer.material;
-            padMaterial.EnableKeyword("_EMISSION");
-            padMaterial.SetColor("_EmissionColor", defaultColor * 0f); // Спочатку без світіння (або налаштуй інакше)
-        }
+        SetGlowColor(_defaultColor, 0f); 
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Перевіряємо, чи це гравець
         if (IsPlayer(other))
         {
-            // Шукаємо скрипт PlayerController на об'єкті
-            PlayerController player = other.GetComponent<PlayerController>();
-            // Якщо не знайшли на самому об'єкті, шукаємо в батьківських (корисно, якщо колайдер на Visual)
-            if (player == null) player = other.GetComponentInParent<PlayerController>();
+           
+            Rigidbody playerRb = other.attachedRigidbody;
 
-            if (player != null)
+            if (playerRb != null)
             {
-                TryActivate(player);
+              
+                PlayerController player = playerRb.GetComponent<PlayerController>();
+
+                if (player != null)
+                {
+                    TryActivate(player, playerRb);
+                }
             }
         }
     }
 
     private bool IsPlayer(Collider other)
     {
-        return (playerLayer.value & (1 << other.gameObject.layer)) != 0;
+        return (_playerLayer.value & (1 << other.gameObject.layer)) != 0;
     }
 
-    private void TryActivate(PlayerController player)
+    private void TryActivate(PlayerController player, Rigidbody playerRb)
     {
-        // Перевірка кулдауну
-        if (Time.time - lastActivationTime < cooldown) return;
+        if (Time.time - _lastActivationTime < _cooldown) return;
+        _lastActivationTime = Time.time;
 
-        lastActivationTime = Time.time;
-
-        ActivatePad(player);
+        ActivatePad(player, playerRb);
     }
 
-    private void ActivatePad(PlayerController player)
+    private void ActivatePad(PlayerController player, Rigidbody playerRb)
     {
-        // 1. ГОЛОВНА ДІЯ: Міняємо гравітацію
+      
         player.FlipGravity();
 
-        // 2. Опціонально: Трішки відштовхуємо гравця від пада
-        // Це допомагає уникнути ситуації, коли гравець застрягає в колайдері пада при зміні гравітації
-        if (addPushOff)
+      
+        if (_addPushOff && playerRb != null)
         {
-            Rigidbody rb = player.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                // Штовхаємо в напрямку, куди дивиться пад (зазвичай вгору transform.up)
-                rb.AddForce(transform.up * pushForce, ForceMode.VelocityChange);
-            }
+          
+            var velocity = playerRb.velocity;
+            velocity.y = 0f;
+            playerRb.velocity = velocity;
+
+            playerRb.AddForce(transform.up * _pushForce, ForceMode.VelocityChange);
         }
 
-        // 3. Ефекти
-        if (activationEffect != null) activationEffect.Play();
-        if (activationSound != null) activationSound.Play();
+       
+        if (_activationEffect != null) _activationEffect.Play();
+        if (_activationSound != null) _activationSound.Play();
 
-        // 4. Анімація
-        StartCoroutine(AnimatePadVisual());
+      
+        PlayPadAnimation();
     }
 
-    private IEnumerator AnimatePadVisual()
+    private void PlayPadAnimation()
     {
-        // Стиснення
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animationSpeed;
-            transform.localScale = Vector3.Lerp(originalScale, originalScale * bounceScale, t);
-            SetGlowColor(activeColor, glowIntensity);
-            yield return null;
-        }
+        transform.DOKill();
 
-        // Повернення
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animationSpeed;
-            transform.localScale = Vector3.Lerp(originalScale * bounceScale, originalScale, t);
-            SetGlowColor(defaultColor, 0f); // Повертаємо до тьмяного або стандартного кольору
-            yield return null;
-        }
+       
+        transform.DOScale(_originalScale * _bounceScale, _animationDuration)
+                 .SetLoops(2, LoopType.Yoyo)
+                 .SetEase(Ease.OutQuad)
+                 .SetLink(gameObject);
 
-        transform.localScale = originalScale;
+       
+        SetGlowColor(_activeColor, _glowIntensity);
+
+        DOVirtual.DelayedCall(_animationDuration, () =>
+        {
+            SetGlowColor(_defaultColor, 0f);
+        }).SetLink(gameObject);
     }
 
     private void SetGlowColor(Color color, float intensity)
     {
-        if (padMaterial != null)
-            padMaterial.SetColor("_EmissionColor", color * intensity);
+        if (_padRenderer != null)
+        {
+            _padRenderer.GetPropertyBlock(_propBlock);
+            _propBlock.SetColor(_emissionColorID, color * intensity);
+            _padRenderer.SetPropertyBlock(_propBlock);
+        }
     }
 }

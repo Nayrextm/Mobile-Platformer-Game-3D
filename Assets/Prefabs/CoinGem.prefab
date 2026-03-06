@@ -214,7 +214,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinValue: 1
-  rotateSpeed: 200
+  rotateDuration: 2
+  bobDuration: 2
+  bobHeight: 0.5
   pickupEffect: {fileID: 7972039928552337728, guid: b57599bafcae006479cc96a32a280c04, type: 3}
   pickupSound: {fileID: 8300000, guid: 2a71d8e8ea428e0409d3df636b9f0192, type: 3}
 --- !u!136 &440488185166791072

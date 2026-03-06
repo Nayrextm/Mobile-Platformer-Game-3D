@@ -1,43 +1,41 @@
 using UnityEngine;
-using System.Collections;
+using DG.Tweening; 
 
 public class BouncePad : MonoBehaviour
 {
-    [Header("Bounce Settings")]
-    public float bounceForce = 20f;
-    public LayerMask playerLayer;
-    public float rayLength = 0.3f;
-    public bool useRaycast = true;
-    public float cooldown = 0.05f;
+    [Header("Налаштування стрибка")]
+    [SerializeField] private float bounceForce = 20f;
+    [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private float rayLength = 0.3f;
+    [SerializeField] private bool useRaycast = true;
+    [SerializeField] private float cooldown = 0.05f;
 
-    [Header("Visual Settings")]
-    public Renderer padRenderer;
-    public Color defaultColor = Color.yellow;
-    public Color activeColor = Color.white;
-    public float glowIntensity = 2f;
-    public float bounceScale = 0.8f;
-    public float animationSpeed = 10f;
+    [Header("Візуальні налаштування")]
+    [SerializeField] private Renderer padRenderer;
+    [SerializeField] private Color defaultColor = Color.yellow;
+    [SerializeField] private Color activeColor = Color.white;
+    [SerializeField] private float glowIntensity = 2f;
+    [SerializeField] private float bounceScale = 0.8f;   
+    [SerializeField] private float animationDuration = 0.15f; 
 
-    [Header("Effects (optional)")]
-    public ParticleSystem bounceEffect;
-    public AudioSource bounceSound;
+    [Header("Ефекти")]
+    [SerializeField] private ParticleSystem bounceEffect;
+    [SerializeField] private AudioSource bounceSound;
 
     private Vector3 originalScale;
-    private Material padMaterial;
     private float lastBounceTime = -1f;
 
-    private void Start()
-    {
-        // Save original size
-        originalScale = transform.localScale;
+    
+    private MaterialPropertyBlock propBlock;
+    private static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor");
 
-        // Setup material/emission
-        if (padRenderer != null)
-        {
-            padMaterial = padRenderer.material;
-            padMaterial.EnableKeyword("_EMISSION");
-            padMaterial.SetColor("_EmissionColor", defaultColor * 0f);
-        }
+    private void Awake()
+    {
+        originalScale = transform.localScale;
+        propBlock = new MaterialPropertyBlock();
+
+        
+        SetGlowColor(defaultColor, 0f);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -65,9 +63,7 @@ public class BouncePad : MonoBehaviour
     {
         if (rb == null) return;
 
-        // Cooldown check
         if (Time.time - lastBounceTime < cooldown) return;
-
         lastBounceTime = Time.time;
 
         Bounce(rb);
@@ -75,7 +71,7 @@ public class BouncePad : MonoBehaviour
 
     private void Bounce(Rigidbody rb)
     {
-        // Remove downward/upward velocity
+       
         var velocity = rb.velocity;
         velocity.y = 0f;
         rb.velocity = velocity;
@@ -85,36 +81,37 @@ public class BouncePad : MonoBehaviour
         if (bounceEffect != null) bounceEffect.Play();
         if (bounceSound != null) bounceSound.Play();
 
-        StartCoroutine(BounceVisual());
+        PlayBounceAnimation();
     }
 
-    private IEnumerator BounceVisual()
+    private void PlayBounceAnimation()
     {
-        // Compress
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animationSpeed;
-            transform.localScale = Vector3.Lerp(originalScale, originalScale * bounceScale, t);
-            SetGlowColor(activeColor, glowIntensity);
-            yield return null;
-        }
+        
+        transform.DOKill();
 
-        // Return scale
-        t = 0f;
-        while (t < 1f)
+        transform.DOScale(originalScale * bounceScale, animationDuration)
+                 .SetLoops(2, LoopType.Yoyo)
+                 .SetEase(Ease.OutQuad)
+                 .SetLink(gameObject);
+
+        
+        SetGlowColor(activeColor, glowIntensity);
+
+        DOVirtual.DelayedCall(animationDuration, () =>
         {
-            t += Time.deltaTime * animationSpeed;
-            transform.localScale = Vector3.Lerp(originalScale * bounceScale, originalScale, t);
             SetGlowColor(defaultColor, 0f);
-            yield return null;
-        }
+        }).SetLink(gameObject);
     }
 
     private void SetGlowColor(Color color, float intensity)
     {
-        if (padMaterial != null)
-            padMaterial.SetColor("_EmissionColor", color * intensity);
+        if (padRenderer != null)
+        {
+           
+            padRenderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor(EmissionColorID, color * intensity);
+            padRenderer.SetPropertyBlock(propBlock);
+        }
     }
 
     private void OnDrawGizmosSelected()
