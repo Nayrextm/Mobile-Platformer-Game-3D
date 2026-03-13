@@ -55,7 +55,7 @@ public class SpeedModifierPad : MonoBehaviour
         _lastActivation = Time.time;
 
        
-        player.forwardSpeed = _targetSpeed;
+        player.ForwardSpeed = _targetSpeed;
 
         if (_activateFX != null) _activateFX.Play();
         if (_activateSound != null) _activateSound.Play();

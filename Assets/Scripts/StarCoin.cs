@@ -49,7 +49,7 @@ public class StarCoin : MonoBehaviour
             myRenderer = visualModel.GetComponent<Renderer>();
             if (myRenderer != null)
             {
-                normalMaterial = myRenderer.material;
+                normalMaterial = myRenderer.sharedMaterial;
             }
         }
     }
@@ -119,7 +119,7 @@ public class StarCoin : MonoBehaviour
         if (myCollider) myCollider.enabled = false; 
         if (myRenderer != null && ghostMaterial != null)
         {
-            myRenderer.material = ghostMaterial;
+            myRenderer.sharedMaterial = ghostMaterial;
         }
     }
 
@@ -130,7 +130,7 @@ public class StarCoin : MonoBehaviour
 
         if (myRenderer != null && normalMaterial != null)
         {
-            myRenderer.material = normalMaterial;
+            myRenderer.sharedMaterial = normalMaterial;
         }
     }
 

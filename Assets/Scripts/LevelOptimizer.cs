@@ -1,56 +1,77 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class LevelOptimizer : MonoBehaviour
 {
-    public Transform playerCamera;
-    public float viewDistance = 50f;
-    public float checkInterval = 0.5f;
+    [Header("Налаштування")]
+    [SerializeField] private Transform _playerCamera;
+    [SerializeField] private Transform _interactablesParent; 
 
-    private List<GameObject> allLevelObjects = new List<GameObject>();
+    [Header("Зона видимості")]
+    [SerializeField] private float _viewDistanceForward = 50f;
+    [SerializeField] private float _viewDistanceBackward = 15f;
+    [SerializeField] private float _checkInterval = 0.5f;
 
-    void Start()
+    private readonly List<GameObject> _levelObjects = new List<GameObject>();
+
+    private void Start()
     {
-        GameObject env = GameObject.Find("Environment");
-        if (env != null)
+        if (_interactablesParent == null || _playerCamera == null)
         {
-            foreach (Transform child in env.transform)
-            {
-                // ВАЖЛИВО: Додаємо в список ТІЛЬКИ ті об'єкти, 
-                // які активні в ієрархії на момент старту гри.
-                if (child.gameObject.activeSelf)
-                {
-                    allLevelObjects.Add(child.gameObject);
-                    child.gameObject.SetActive(false); // Тепер вимикаємо лише їх для подальшої появи
-                }
-            }
+            Debug.LogError("Оптимізатор: Не призначено Камеру або Interactables Parent!");
+            return;
         }
 
-        InvokeRepeating("OptimizeLevel", 0f, checkInterval);
+      
+        foreach (Transform child in _interactablesParent)
+        {
+            _levelObjects.Add(child.gameObject);
+            
+            CheckDistanceAndToggle(child.gameObject, _playerCamera.position.x);
+        }
+
+        StartCoroutine(OptimizationRoutine());
     }
 
-    void OptimizeLevel()
+    private IEnumerator OptimizationRoutine()
     {
-        if (playerCamera == null) return;
+       
+        WaitForSeconds wait = new WaitForSeconds(_checkInterval);
 
-        float camX = playerCamera.position.x;
-
-        foreach (GameObject obj in allLevelObjects)
+        while (true)
         {
+            yield return wait;
+            OptimizeLevel();
+        }
+    }
+
+    private void OptimizeLevel()
+    {
+        float camX = _playerCamera.position.x;
+
+       
+        for (int i = 0; i < _levelObjects.Count; i++)
+        {
+            GameObject obj = _levelObjects[i];
+
+           
             if (obj == null) continue;
 
-            float distanceX = obj.transform.position.x - camX;
+            CheckDistanceAndToggle(obj, camX);
+        }
+    }
 
-            // Об'єкт вмикається, якщо він попереду (до viewDistance) 
-            // або за спиною не далі ніж на 15 одиниць
-            if (distanceX > -15f && distanceX < viewDistance)
-            {
-                if (!obj.activeSelf) obj.SetActive(true);
-            }
-            else
-            {
-                if (obj.activeSelf) obj.SetActive(false);
-            }
+    private void CheckDistanceAndToggle(GameObject obj, float camX)
+    {
+        float distanceX = obj.transform.position.x - camX;
+
+        bool shouldBeActive = distanceX > -_viewDistanceBackward && distanceX < _viewDistanceForward;
+
+       
+        if (obj.activeSelf != shouldBeActive)
+        {
+            obj.SetActive(shouldBeActive);
         }
     }
 }

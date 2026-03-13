@@ -1,3 +1,4 @@
+
 //using UnityEngine;
 
 //public class FinishPortal : MonoBehaviour
@@ -7,40 +8,63 @@
 
 //    private void OnTriggerEnter(Collider other)
 //    {
+//        // Перевіряємо, чи зайшов гравець
 //        PlayerController player = other.GetComponent<PlayerController>();
+
 //        if (player != null)
 //        {
+//            // Граємо ефекти
 //            if (finishEffect) finishEffect.Play();
 //            if (finishSound) finishSound.Play();
 
-//            LevelManager lm = FindObjectOfType<LevelManager>();
-//            if (lm != null)
-//                lm.LevelFinished(player);
+//            // Викликаємо фініш через Singleton (швидше і надійніше)
+//            if (LevelManager.Instance != null)
+//            {
+//                LevelManager.Instance.LevelFinished(player);
+//            }
 //        }
 //    }
 //}
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public class FinishPortal : MonoBehaviour
 {
-    public ParticleSystem finishEffect;
-    public AudioSource finishSound;
+    [Header("Ефекти")]
+    [SerializeField] private ParticleSystem _finishEffect;
+    [SerializeField] private AudioSource _finishSound;
+
+    private bool _isFinished = false;
+
+    private void Awake()
+    {
+        GetComponent<Collider>().isTrigger = true;
+
+        if (_finishSound != null)
+        {
+            _finishSound.volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Перевіряємо, чи зайшов гравець
-        PlayerController player = other.GetComponent<PlayerController>();
+        if (_isFinished) return;
 
-        if (player != null)
+        if (other.CompareTag("Player"))
         {
-            // Граємо ефекти
-            if (finishEffect) finishEffect.Play();
-            if (finishSound) finishSound.Play();
+            PlayerController player = other.GetComponent<PlayerController>();
 
-            // Викликаємо фініш через Singleton (швидше і надійніше)
-            if (LevelManager.Instance != null)
+            if (player != null)
             {
-                LevelManager.Instance.LevelFinished(player);
+                _isFinished = true;
+
+                if (_finishEffect != null) _finishEffect.Play();
+                if (_finishSound != null) _finishSound.Play();
+
+                if (LevelManager.Instance != null)
+                {
+                    LevelManager.Instance.LevelFinished(player);
+                }
             }
         }
     }

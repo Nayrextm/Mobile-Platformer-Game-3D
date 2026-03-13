@@ -42,7 +42,7 @@ public class SpeedBoost : MonoBehaviour
 
         var player = other.GetComponent<PlayerController>();
         if (player != null)
-            player.forwardSpeed *= speedMultiplier;
+            player.ForwardSpeed *= speedMultiplier;
     }
 
     private void OnTriggerExit(Collider other)

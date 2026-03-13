@@ -4,18 +4,25 @@ public class PerspectivePortal : MonoBehaviour
 {
     [Header("Налаштування")]
     [Tooltip("Галочка є = вмикаємо 3D. Галочки нема = повертаємо 2D")]
-    public bool enable3DView = true;
+    [SerializeField] private bool _enable3DView = true;
+
+    
+    private CameraFollow _cam;
+
+    private void Awake()
+    {
+        
+        _cam = FindObjectOfType<CameraFollow>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Перевіряємо, чи це гравець
-        if (other.CompareTag("Player") || other.GetComponent<PlayerController>())
+        
+        if (other.CompareTag("Player"))
         {
-            // Знаходимо камеру і перемикаємо режим
-            CameraFollow cam = FindObjectOfType<CameraFollow>();
-            if (cam != null)
+            if (_cam != null)
             {
-                cam.Set3DView(enable3DView);
+                _cam.Set3DView(_enable3DView);
             }
         }
     }

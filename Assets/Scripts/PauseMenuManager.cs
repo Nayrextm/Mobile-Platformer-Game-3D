@@ -1,3 +1,4 @@
+
 //using UnityEngine;
 //using UnityEngine.SceneManagement;
 //using UnityEngine.UI;
@@ -10,11 +11,11 @@
 //    public Button mainMenuButton;
 
 //    [Header("Volume Sliders")]
-//    public Slider gameMusicSlider; // Слайдер для музики рівня
-//    public Slider sfxSlider;       // Слайдер для ефектів (SFX)
+//    public Slider gameMusicSlider;
+//    public Slider sfxSlider; // Слайдер SFX
 
 //    [Header("Audio")]
-//    public MusicController musicController; // Контролер музики на рівні
+//    public MusicController musicController;
 
 //    bool isPaused = false;
 
@@ -24,10 +25,9 @@
 //        if (restartButton != null) restartButton.onClick.AddListener(RestartLevel);
 //        if (mainMenuButton != null) mainMenuButton.onClick.AddListener(GoToMainMenu);
 
-//        // 1. Налаштування слайдера МУЗИКИ РІВНЯ
+//        // 1. Налаштування слайдера МУЗИКИ
 //        if (gameMusicSlider != null)
 //        {
-//            // Завантажуємо ключ "GameMusicVolume" (не Menu!)
 //            float savedGameVol = PlayerPrefs.GetFloat("GameMusicVolume", 1f);
 //            gameMusicSlider.value = savedGameVol;
 //            gameMusicSlider.onValueChanged.AddListener(OnGameMusicChanged);
@@ -36,45 +36,38 @@
 //        // 2. Налаштування слайдера SFX
 //        if (sfxSlider != null)
 //        {
-//            // Завантажуємо ключ "SFXVolume"
+//            // Завантажуємо збережене значення (спільне з головним меню)
 //            float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
 //            sfxSlider.value = savedSFX;
 //            sfxSlider.onValueChanged.AddListener(OnSFXChanged);
 //        }
 //    }
 
-//    // Зміна гучності музики (відразу чути ефект)
 //    void OnGameMusicChanged(float value)
 //    {
-//        // Оновлюємо гучність у контролері в реальному часі
-//        if (musicController != null)
-//        {
-//            musicController.SetVolume(value);
-//        }
-
-//        // Зберігаємо, щоб на наступному рівні було так само
+//        if (musicController != null) musicController.SetVolume(value);
 //        PlayerPrefs.SetFloat("GameMusicVolume", value);
 //        PlayerPrefs.Save();
 //    }
 
-//    // Зміна гучності ефектів
+//    // ---> ОНОВЛЕНО: Зміна SFX
 //    void OnSFXChanged(float value)
 //    {
-//        // Просто зберігаємо. 
-//        // Примітка: Гравець почує зміни при наступному респауні або завантаженні рівня,
-//        // бо PlayerController зчитує це в Awake.
+//        // 1. Зберігаємо глобально (щоб в Головному Меню теж змінилося)
 //        PlayerPrefs.SetFloat("SFXVolume", value);
 //        PlayerPrefs.Save();
-//    }
 
-//    void Update()
-//    {
-//        if (Input.GetKeyDown(KeyCode.Escape))
+//        // 2. Шукаємо гравця на сцені і міняємо йому гучність прямо зараз
+//        PlayerController player = FindObjectOfType<PlayerController>();
+//        if (player != null)
 //        {
-//            if (isPaused) ResumeGame();
-//            else PauseGame();
+//            player.SetSFXVolume(value);
 //        }
 //    }
+
+//    // ... Методи PauseGame, ResumeGame, RestartLevel, GoToMainMenu без змін ...
+
+//    void Update() { if (Input.GetKeyDown(KeyCode.Escape)) { if (isPaused) ResumeGame(); else PauseGame(); } }
 
 //    void PauseGame()
 //    {
@@ -82,7 +75,6 @@
 //        Time.timeScale = 0f;
 //        isPaused = true;
 //        Cursor.visible = true;
-
 //        if (musicController != null) musicController.PauseMusic();
 //    }
 
@@ -92,7 +84,6 @@
 //        Time.timeScale = 1f;
 //        isPaused = false;
 //        Cursor.visible = false;
-
 //        if (musicController != null) musicController.ResumeMusic();
 //    }
 
@@ -115,95 +106,110 @@ using UnityEngine.UI;
 public class PauseMenuManager : MonoBehaviour
 {
     [Header("UI References")]
-    public GameObject pausePanel;
-    public Button restartButton;
-    public Button mainMenuButton;
+    [SerializeField] private GameObject _pausePanel;
+    [SerializeField] private Button _restartButton;
+    [SerializeField] private Button _mainMenuButton;
 
     [Header("Volume Sliders")]
-    public Slider gameMusicSlider;
-    public Slider sfxSlider; // Слайдер SFX
+    [SerializeField] private Slider _gameMusicSlider;
+    [SerializeField] private Slider _sfxSlider;
 
     [Header("Audio")]
-    public MusicController musicController;
+    [SerializeField] private MusicController _musicController;
 
-    bool isPaused = false;
+    private bool _isPaused = false;
+    private PlayerController _player;
 
-    void Start()
+    private void Start()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (restartButton != null) restartButton.onClick.AddListener(RestartLevel);
-        if (mainMenuButton != null) mainMenuButton.onClick.AddListener(GoToMainMenu);
+        _player = FindObjectOfType<PlayerController>();
 
-        // 1. Налаштування слайдера МУЗИКИ
-        if (gameMusicSlider != null)
+        if (_pausePanel != null) _pausePanel.SetActive(false);
+
+        if (_restartButton != null) _restartButton.onClick.AddListener(RestartLevel);
+        if (_mainMenuButton != null) _mainMenuButton.onClick.AddListener(GoToMainMenu);
+
+        if (_gameMusicSlider != null)
         {
-            float savedGameVol = PlayerPrefs.GetFloat("GameMusicVolume", 1f);
-            gameMusicSlider.value = savedGameVol;
-            gameMusicSlider.onValueChanged.AddListener(OnGameMusicChanged);
+            _gameMusicSlider.value = PlayerPrefs.GetFloat("GameMusicVolume", 1f);
+            _gameMusicSlider.onValueChanged.AddListener(OnGameMusicChanged);
         }
 
-        // 2. Налаштування слайдера SFX
-        if (sfxSlider != null)
+        if (_sfxSlider != null)
         {
-            // Завантажуємо збережене значення (спільне з головним меню)
-            float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
-            sfxSlider.value = savedSFX;
-            sfxSlider.onValueChanged.AddListener(OnSFXChanged);
+            _sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+            _sfxSlider.onValueChanged.AddListener(OnSFXChanged);
         }
     }
 
-    void OnGameMusicChanged(float value)
+    private void OnDestroy()
     {
-        if (musicController != null) musicController.SetVolume(value);
+        if (_restartButton != null) _restartButton.onClick.RemoveListener(RestartLevel);
+        if (_mainMenuButton != null) _mainMenuButton.onClick.RemoveListener(GoToMainMenu);
+        if (_gameMusicSlider != null) _gameMusicSlider.onValueChanged.RemoveListener(OnGameMusicChanged);
+        if (_sfxSlider != null) _sfxSlider.onValueChanged.RemoveListener(OnSFXChanged);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (_isPaused) ResumeGame();
+            else PauseGame();
+        }
+    }
+
+    private void OnGameMusicChanged(float value)
+    {
+        if (_musicController != null) _musicController.SetVolume(value);
         PlayerPrefs.SetFloat("GameMusicVolume", value);
-        PlayerPrefs.Save();
     }
 
-    // ---> ОНОВЛЕНО: Зміна SFX
-    void OnSFXChanged(float value)
+    private void OnSFXChanged(float value)
     {
-        // 1. Зберігаємо глобально (щоб в Головному Меню теж змінилося)
         PlayerPrefs.SetFloat("SFXVolume", value);
-        PlayerPrefs.Save();
 
-        // 2. Шукаємо гравця на сцені і міняємо йому гучність прямо зараз
-        PlayerController player = FindObjectOfType<PlayerController>();
-        if (player != null)
+        if (_player != null)
         {
-            player.SetSFXVolume(value);
+            _player.SetSFXVolume(value);
         }
     }
 
-    // ... Методи PauseGame, ResumeGame, RestartLevel, GoToMainMenu без змін ...
-
-    void Update() { if (Input.GetKeyDown(KeyCode.Escape)) { if (isPaused) ResumeGame(); else PauseGame(); } }
-
-    void PauseGame()
+    public void SaveSettingsToDisk()
     {
-        if (pausePanel != null) pausePanel.SetActive(true);
+        PlayerPrefs.Save();
+    }
+
+    private void PauseGame()
+    {
+        if (_pausePanel != null) _pausePanel.SetActive(true);
         Time.timeScale = 0f;
-        isPaused = true;
+        _isPaused = true;
         Cursor.visible = true;
-        if (musicController != null) musicController.PauseMusic();
+        if (_musicController != null) _musicController.PauseMusic();
     }
 
     public void ResumeGame()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
+        SaveSettingsToDisk();
+
+        if (_pausePanel != null) _pausePanel.SetActive(false);
         Time.timeScale = 1f;
-        isPaused = false;
+        _isPaused = false;
         Cursor.visible = false;
-        if (musicController != null) musicController.ResumeMusic();
+        if (_musicController != null) _musicController.ResumeMusic();
     }
 
-    void RestartLevel()
+    private void RestartLevel()
     {
+        SaveSettingsToDisk();
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    void GoToMainMenu()
+    private void GoToMainMenu()
     {
+        SaveSettingsToDisk();
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }

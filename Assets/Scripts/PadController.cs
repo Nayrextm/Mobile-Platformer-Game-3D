@@ -46,9 +46,9 @@ public class PadController : MonoBehaviour
 
             // Змінюємо швидкість
             if (isSlowPad)
-                player.forwardSpeed = targetSpeed; // повільніше
+                player.ForwardSpeed = targetSpeed; // повільніше
             else
-                player.forwardSpeed = targetSpeed; // швидше
+                player.ForwardSpeed = targetSpeed; // швидше
 
             if (activateFX != null) activateFX.Play();
             if (activateSound != null) activateSound.Play();

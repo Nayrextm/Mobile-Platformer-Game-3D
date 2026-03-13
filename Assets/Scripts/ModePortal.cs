@@ -1,79 +1,50 @@
 using UnityEngine;
 
-
-
 public class ModePortal : MonoBehaviour
-
 {
-
-    // Випадаюче меню в Інспекторі
-
     public enum GameMode
-
     {
-
-        Cube,   // Звичайний
-
-        Ball,   // Гравітація
-
-        Spider, // Павук
-
-        Ghost   // ---> НОВЕ: Режим Привида
-
+        Cube,   
+        Ball,   
+        Spider, 
+        Ghost   
     }
-
-
 
     [Header("Налаштування")]
+    [SerializeField] private GameMode _targetMode;
+    [SerializeField] private AudioClip _portalSound;
 
-    public GameMode targetMode; // Обери режим тут
+   
+    private string _modeString;
 
-    public AudioClip portalSound; // Звук входу
-
-
-
-    private void OnTriggerEnter(Collider other)
-
+    private void Awake()
     {
-
-        // 1. Спочатку шукаємо скрипт на самому об'єкті
-
-        PlayerController player = other.GetComponent<PlayerController>();
-
-
-
-        // 2. Якщо не знайшли, шукаємо в батьківському об'єкті
-
-        // (Це корисно, якщо колайдер висить на дочірньому об'єкті Visual)
-
-        if (player == null)
-
-            player = other.GetComponentInParent<PlayerController>();
-
-
-
-        if (player != null)
-
-        {
-
-            // Перемикаємо режим
-
-            player.SetMode(targetMode.ToString());
-
-
-
-            // Граємо звук
-
-            if (portalSound != null)
-
-            {
-
-                AudioSource.PlayClipAtPoint(portalSound, transform.position);
-
-            }
-
-        }
-
+       
+        _modeString = _targetMode.ToString();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+       
+        if (other.CompareTag("Player"))
+        {
+           
+            if (other.attachedRigidbody != null)
+            {
+                PlayerController player = other.attachedRigidbody.GetComponent<PlayerController>();
+
+                if (player != null)
+                {
+                    
+                    player.SetMode(_modeString);
+
+                   
+                    if (_portalSound != null)
+                    {
+                        AudioSource.PlayClipAtPoint(_portalSound, transform.position);
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,45 +1,55 @@
+
 using UnityEngine;
 
+[RequireComponent(typeof(Renderer))]
 public class GhostFade : MonoBehaviour
 {
-    public float lifeTime = 2.0f; // Скільки секунд живе привид
-    public bool fadeOut = true;   // Чи треба плавно зникати
+    [SerializeField] private float _lifeTime = 2.0f; 
+    [SerializeField] private bool _fadeOut = true;   
 
-    private Material _matInstance;
-    private float _startAlpha;
-    private float _timer;
+    private Renderer _renderer;
+    private MaterialPropertyBlock _propBlock;
 
-    void Start()
+   
+    private static readonly int _baseColorID = Shader.PropertyToID("_BaseColor");
+
+    private float _startAlpha = 1f;
+    private float _timer = 0f;
+    private Color _currentColor;
+
+    private void Start()
     {
-        // Отримуємо матеріал
-        Renderer rend = GetComponent<Renderer>();
-        if (rend != null)
+        _renderer = GetComponent<Renderer>();
+        _propBlock = new MaterialPropertyBlock();
+
+        if (_renderer != null && _renderer.sharedMaterial != null)
         {
-            _matInstance = rend.material;
-            // Запам'ятовуємо початкову прозорість
-            if (_matInstance.HasProperty("_BaseColor"))
-                _startAlpha = _matInstance.GetColor("_BaseColor").a;
-            else
-                _startAlpha = 1f; // Якщо шейдер стандартний
+            
+            if (_renderer.sharedMaterial.HasProperty(_baseColorID))
+            {
+                _currentColor = _renderer.sharedMaterial.GetColor(_baseColorID);
+                _startAlpha = _currentColor.a;
+            }
         }
 
-        // Запуск таймера знищення (гарантія, що об'єкт видалиться)
-        Destroy(gameObject, lifeTime);
+        
+        Destroy(gameObject, _lifeTime);
     }
 
-    void Update()
+    private void Update()
     {
-        if (fadeOut && _matInstance != null)
+        if (_fadeOut && _renderer != null)
         {
             _timer += Time.deltaTime;
-            // Рахуємо нову прозорість (від стартової до 0)
-            float progress = _timer / lifeTime;
-            float currentAlpha = Mathf.Lerp(_startAlpha, 0f, progress);
+            float progress = _timer / _lifeTime;
 
-            // Застосовуємо колір
-            Color c = _matInstance.GetColor("_BaseColor");
-            c.a = currentAlpha;
-            _matInstance.SetColor("_BaseColor", c);
+            
+            _currentColor.a = Mathf.Lerp(_startAlpha, 0f, progress);
+
+           
+            _renderer.GetPropertyBlock(_propBlock);
+            _propBlock.SetColor(_baseColorID, _currentColor);
+            _renderer.SetPropertyBlock(_propBlock);
         }
     }
 }
