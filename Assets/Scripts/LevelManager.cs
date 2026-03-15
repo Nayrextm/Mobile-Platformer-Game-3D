@@ -198,6 +198,40 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    //public void PlayerDied(PlayerController player)
+    //{
+    //    if (_isRestarting) return;
+    //    _isRestarting = true;
+
+    //    ResetTempCoins();
+    //    SaveAttemptsToDB(true);
+
+    //    _sessionAttempts++;
+    //    if (_musicController != null) _musicController.FadeOutMusic();
+
+    //    StartCoroutine(HandlePlayerDeath(player));
+    //}
+
+    //private IEnumerator HandlePlayerDeath(PlayerController player)
+    //{
+    //    yield return new WaitForSeconds(_restartDelay);
+
+    //    if (player != null && _spawnPoint != null)
+    //    {
+    //        player.RespawnAt(_spawnPoint);
+    //        OnLevelReset?.Invoke();
+
+    //        if (_cameraScript != null) _cameraScript.ResetCamera();
+    //        if (_musicController != null) _musicController.RestartMusic();
+
+    //        _isRestarting = false;
+    //    }
+    //    else
+    //    {
+    //        SceneManager.LoadScene(_currentLevelName);
+    //    }
+    //}
+
     public void PlayerDied(PlayerController player)
     {
         if (_isRestarting) return;
@@ -219,6 +253,14 @@ public class LevelManager : MonoBehaviour
         if (player != null && _spawnPoint != null)
         {
             player.RespawnAt(_spawnPoint);
+
+            
+            if (PoolManager.Instance != null)
+            {
+                PoolManager.Instance.HideAllActiveEffects();
+            }
+          
+
             OnLevelReset?.Invoke();
 
             if (_cameraScript != null) _cameraScript.ResetCamera();

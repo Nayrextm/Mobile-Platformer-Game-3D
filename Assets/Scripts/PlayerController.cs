@@ -1,7 +1,8 @@
 ﻿
+//using UnityEngine;
 //using UnityEngine.SceneManagement;
 //using System.Collections;
-//using UnityEngine;
+//using UnityEngine.EventSystems;
 
 //[RequireComponent(typeof(Rigidbody))]
 //[RequireComponent(typeof(AudioSource))]
@@ -9,453 +10,367 @@
 //public class PlayerController : MonoBehaviour
 //{
 //    [Header("Visuals")]
-//    public Transform visualModel;
-//    public float rotationSpeed = 360f;
-//    public TrailRenderer trail;
+//    [SerializeField] private Transform _visualModel;
+//    //Не використовується для обертання -> [SerializeField] private float _rotationSpeed = 360f;
+//    [SerializeField] private TrailRenderer _trail;
 
 //    [Header("Ghost Settings")]
-//    public float ghostAlpha = 0.3f;
-//    public string safeLayerName = "Ground";
-//    public string deadlyLayerName = "Obstacle";
-//    public string wallLayerName = "Wall";
-
-//    private Renderer[] modelRenderers;
-//    private bool isPhasing = false;
-
-//    // ID шарів
-//    private int playerLayer;
-//    private int safeLayer;
-//    private int deadlyLayer;
-//    private int wallLayer;
+//    [SerializeField] private float _ghostAlpha = 0.3f;
+//    [SerializeField] private string _safeLayerName = "Ground";
+//    [SerializeField] private string _deadlyLayerName = "Obstacle";
+//    [SerializeField] private string _wallLayerName = "Wall";
 
 //    [Header("Zipline Settings")]
-//    public float ziplineBaseSpeed = 15f;
-//    public float ziplineSnapSpeed = 20f; // Наскільки швидко примагнічувати до лінії
-//    private bool isZiplineMode = false;
-//    private Transform currentZipline;
-//    private float currentZiplineSpeedMod = 1f;
+//    [SerializeField] private float _ziplineBaseSpeed = 15f;
+//    [SerializeField] private float _ziplineSnapSpeed = 20f;
 
 //    [Header("Spider Settings")]
-//    public float spiderBeamDuration = 0.1f;
-//    private LineRenderer spiderLine;
+//    [SerializeField] private float _spiderBeamDuration = 0.1f;
 
 //    [Header("Movement")]
-//    public float forwardSpeed = 10f;
-//    public float jumpForce = 12f;
-//    public int maxJumps = 1;
-
-//    public float jumpBufferTime = 0.15f;
-//    public float coyoteTime = 0.1f;
+//    [Tooltip("Кількість ДОДАТКОВИХ стрибків у повітрі. 0 = лише звичайний, 1 = подвійний стрибок.")]
+//    [SerializeField] private int _extraAirJumps = 1;
+//    [SerializeField] private float _forwardSpeed = 10f;
+//    [SerializeField] private float _jumpForce = 12f;
+//    [SerializeField] private float _jumpBufferTime = 0.15f;
+//    [SerializeField] private float _coyoteTime = 0.1f;
 
 //    [Header("Modes Settings")]
-//    public float gravityForce = 30f;
-
-//    private bool isGravityMode = false;
-//    private bool isSpiderMode = false;
-//    private bool isGhostMode = false;
-//    private float gravityScale = 1f;
+//    [SerializeField] private float _gravityForce = 30f;
 
 //    [Header("Ground Check")]
-//    public LayerMask groundMask;
-//    public float groundCheckDistance = 0.6f;
-//    public Vector3 groundCheckOffset = Vector3.zero;
+//    [SerializeField] private LayerMask _groundMask;
+//    [SerializeField] private float _groundCheckDistance = 0.6f;
+//    [SerializeField] private Vector3 _groundCheckOffset = Vector3.zero;
 
 //    [Header("Effects")]
-//    public ParticleSystem jumpParticles;
-//    public ParticleSystem deathParticles;
-//    public ParticleSystem spiderTeleportParticles;
-//    public ParticleSystem spiderLandParticles;
+//    [SerializeField] private ParticleSystem _jumpParticles;
+//    [SerializeField] private ParticleSystem _deathParticles;
+//    [SerializeField] private ParticleSystem _spiderTeleportParticles;
+//    [SerializeField] private ParticleSystem _spiderLandParticles;
 
 //    [Header("Audio SFX")]
-//    public AudioClip jumpSfx;
-//    public AudioClip deathSfx;
-//    public AudioClip gravitySwitchSfx;
+//    [SerializeField] private AudioClip _jumpSfx;
+//    [SerializeField] private AudioClip _deathSfx;
+//    [SerializeField] private AudioClip _gravitySwitchSfx;
 
-//    private Rigidbody rb;
-//    private Collider myCollider;
-//    private AudioSource audioSource;
-//    private LevelManager levelManager;
 
-//    // ---> НОВЕ: Посилання на камеру
-//    private CameraFollow cameraFollow;
+//    private Rigidbody _rb;
+//    private Collider _myCollider;
+//    private AudioSource _audioSource;
+//    private LevelManager _levelManager;
+//    private CameraFollow _cameraFollow;
+//    private LineRenderer _spiderLine;
+//    private Renderer[] _modelRenderers;
 
-//    private float defaultSpeed;
-//    private int jumpsLeft;
-//    private bool isGrounded;
-//    private bool isDead = false;
 
-//    private Vector3 originalScale;
+//    private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
+//    private float _defaultSpeed;
+//    private Vector3 _originalScale;
 
-//    private float jumpBufferCounter;
-//    private float coyoteTimeCounter;
-//    private bool jumpRequested = false;
+//    private float _gravityScale = 1f;
+//    private int _jumpsLeft;
+//    private float _jumpBufferCounter, _coyoteTimeCounter;
 
-//    void Awake()
+//    private bool _isDead = false;
+//    private bool _isGrounded = false;
+//    private bool _jumpRequested = false;
+//    private bool _isHoldingInput = false; 
+
+
+//    private bool _isGravityMode = false;
+//    private bool _isSpiderMode = false;
+//    private bool _isGhostMode = false;
+//    private bool _isPhasing = false;
+//    private bool _isZiplineMode = false;
+
+//    private Transform _currentZipline;
+//    private float _currentZiplineSpeedMod = 1f;
+
+
+//    public float ForwardSpeed
 //    {
-//        rb = GetComponent<Rigidbody>();
-//        myCollider = GetComponent<Collider>();
-//        audioSource = GetComponent<AudioSource>();
-//        levelManager = FindObjectOfType<LevelManager>();
-
-//        // ---> НОВЕ: Знаходимо камеру
-//        cameraFollow = FindObjectOfType<CameraFollow>();
-
-//        spiderLine = GetComponent<LineRenderer>();
-//        if (spiderLine != null) spiderLine.enabled = false;
-
-//        rb.interpolation = RigidbodyInterpolation.Interpolate;
-//        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-//        rb.useGravity = false;
-
-//        if (audioSource != null)
-//        {
-//            float sfxVol = PlayerPrefs.GetFloat("SFXVolume", 1f);
-//            audioSource.volume = sfxVol;
-//        }
-
-//        defaultSpeed = forwardSpeed;
-//        originalScale = transform.localScale;
-
-//        if (visualModel != null)
-//            modelRenderers = visualModel.GetComponentsInChildren<Renderer>();
-
-//        // Init Layers
-//        playerLayer = gameObject.layer;
-//        safeLayer = LayerMask.NameToLayer(safeLayerName);
-//        deadlyLayer = LayerMask.NameToLayer(deadlyLayerName);
-//        wallLayer = LayerMask.NameToLayer(wallLayerName);
-
-//        if (wallLayer != -1) groundMask |= (1 << wallLayer);
+//        get => _forwardSpeed;
+//        set => _forwardSpeed = value;
 //    }
 
-//    void Update()
+//    private void Awake()
 //    {
-//        if (isDead) return;
+//        _rb = GetComponent<Rigidbody>();
+//        _myCollider = GetComponent<Collider>();
+//        _audioSource = GetComponent<AudioSource>();
+//        _levelManager = FindObjectOfType<LevelManager>();
+//        _cameraFollow = FindObjectOfType<CameraFollow>();
+//        _spiderLine = GetComponent<LineRenderer>();
 
-//        // ---> ЗАКОМЕНТОВАНО: Обертання моделі (щоб не котилася) <---
-//        // Обертання моделі
-//        // if (visualModel != null && !isZiplineMode)
-//        //    visualModel.Rotate(Vector3.back * rotationSpeed * Time.deltaTime);
+//        if (_spiderLine != null) _spiderLine.enabled = false;
 
-//        // Відновлення стрибків
-//        if (isGrounded || isZiplineMode)
+//        _rb.interpolation = RigidbodyInterpolation.Interpolate;
+//        _rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+//        _rb.useGravity = false;
+
+//        if (_audioSource != null)
 //        {
-//            coyoteTimeCounter = coyoteTime;
-//            jumpsLeft = maxJumps;
+//            _audioSource.volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
 //        }
-//        else { coyoteTimeCounter -= Time.deltaTime; }
 
-//        bool isHolding = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
+//        _defaultSpeed = _forwardSpeed;
+//        _originalScale = transform.localScale;
+
+//        if (_visualModel != null)
+//            _modelRenderers = _visualModel.GetComponentsInChildren<Renderer>();
+
+//        InitializeLayers();
+//    }
+
+//    private void InitializeLayers()
+//    {
+//        _playerLayer = gameObject.layer;
+//        _safeLayer = LayerMask.NameToLayer(_safeLayerName);
+//        _deadlyLayer = LayerMask.NameToLayer(_deadlyLayerName);
+//        _wallLayer = LayerMask.NameToLayer(_wallLayerName);
+
+//        if (_wallLayer != -1) _groundMask |= (1 << _wallLayer);
+//    }
+
+//    private void Update()
+//    {
+//        if (_isDead) return;
+
+
+//        GroundCheck();
+
+//        HandleInput();
+//        UpdateTimers();
+//        ProcessJumpLogic();
+//        HandleZiplineExit();
+//    }
+
+//    private void HandleInput()
+//    {
+
+//        _isHoldingInput = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
+
 //        bool isPressedDown = Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ||
 //                             (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
 
-//        // --- INPUT HANDLING ---
-//        if (isGhostMode)
+//        if (_isGhostMode)
 //        {
-//            if (isHolding) SetPhasingState(true);
-//            else SetPhasingState(false);
+//            SetPhasingState(_isHoldingInput);
 //        }
 //        else
 //        {
-//            if (isPhasing) SetPhasingState(false);
+//            if (_isPhasing) SetPhasingState(false);
 
 //            if (isPressedDown)
 //            {
-//                if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-//                    jumpBufferCounter = jumpBufferTime;
+//                if (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject())
+//                    _jumpBufferCounter = _jumpBufferTime;
 //            }
-//            else jumpBufferCounter -= Time.deltaTime;
+//            else
+//            {
+//                _jumpBufferCounter -= Time.deltaTime;
+//            }
 //        }
+//    }
 
-//        // --- ВИХІД З ЗІПЛАЙНУ ---
-//        if (isZiplineMode && !isHolding)
+//    private void UpdateTimers()
+//    {
+//        if (_isGrounded || _isZiplineMode)
+//        {
+//            _coyoteTimeCounter = _coyoteTime;
+//            _jumpsLeft = _extraAirJumps;
+//        }
+//        else
+//        {
+//            _coyoteTimeCounter -= Time.deltaTime;
+//        }
+//    }
+
+//    private void ProcessJumpLogic()
+//    {
+//        if (!_isGhostMode && !_isZiplineMode && _jumpBufferCounter > 0f)
+//        {
+//            if (_isSpiderMode && _isGrounded)
+//            {
+//                PerformSpiderTeleport();
+//                _jumpBufferCounter = 0f;
+//            }
+//            else if (_isGravityMode && _isGrounded)
+//            {
+//                FlipGravity();
+//                _jumpBufferCounter = 0f;
+//            }
+//            else if (!_isSpiderMode && !_isGravityMode && (_coyoteTimeCounter > 0f || _jumpsLeft > 0))
+//            {
+//                _jumpRequested = true;
+//                if (_coyoteTimeCounter <= 0f) _jumpsLeft--;
+//                _jumpBufferCounter = 0f;
+//            }
+//        }
+//    }
+
+//    private void HandleZiplineExit()
+//    {
+//        if (_isZiplineMode && !_isHoldingInput)
 //        {
 //            ExitZipline(false);
 //        }
-
-//        // --- JUMP LOGIC ---
-//        if (!isGhostMode && !isZiplineMode && jumpBufferCounter > 0f)
-//        {
-//            if (isSpiderMode && isGrounded) { PerformSpiderTeleport(); jumpBufferCounter = 0f; }
-//            else if (isGravityMode && isGrounded) { FlipGravity(); jumpBufferCounter = 0f; }
-//            else if (!isSpiderMode && !isGravityMode && (coyoteTimeCounter > 0f || jumpsLeft > 0))
-//            {
-//                jumpRequested = true;
-//                if (coyoteTimeCounter <= 0f) jumpsLeft--;
-//                jumpBufferCounter = 0f;
-//            }
-//        }
 //    }
 
-//    void FixedUpdate()
+//    private void FixedUpdate()
 //    {
-//        //if (isDead) return;
+//        CheckFrontCollision(); 
 
-//        //// ============================================
-//        //// ---> ЛОГІКА ЗІПЛАЙНУ <---
-//        //// ============================================
-//        //if (isZiplineMode && currentZipline != null)
-//        //{
-//        //    Vector3 zipDirection = currentZipline.right;
-//        //    Vector3 targetVelocity = zipDirection * (ziplineBaseSpeed * currentZiplineSpeedMod);
-//        //    rb.velocity = targetVelocity;
-
-//        //    Vector3 zipOrigin = currentZipline.position;
-//        //    Vector3 playerDelta = transform.position - zipOrigin;
-//        //    Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
-//        //    Vector3 idealPosition = zipOrigin + projectedDelta;
-//        //    Vector3 smoothedPos = Vector3.Lerp(transform.position, idealPosition, Time.fixedDeltaTime * ziplineSnapSpeed);
-
-//        //    rb.MovePosition(smoothedPos);
-
-//        //    if (visualModel != null)
-//        //    {
-//        //        Quaternion targetRot = Quaternion.LookRotation(zipDirection);
-//        //        visualModel.rotation = Quaternion.Lerp(visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
-//        //    }
-
-//        //    return;
-//        //}
-
-//        if (isZiplineMode && currentZipline != null)
+//        if (_isZiplineMode && _currentZipline != null)
 //        {
-//            // 1. Отримуємо напрямок
-//            Vector3 zipDirection = currentZipline.right;
-
-//            // ❌ ВИДАЛЕНО: rb.velocity = targetVelocity; 
-//            // Це прибере помилку в консолі.
-
-//            // 2. Розраховуємо ідеальну позицію на лінії (Snap)
-//            Vector3 zipOrigin = currentZipline.position;
-//            Vector3 playerDelta = transform.position - zipOrigin;
-//            Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
-//            Vector3 idealPositionOnLine = zipOrigin + projectedDelta;
-
-//            // 3. Додаємо рух ВПЕРЕД до ідеальної позиції
-//            // Оскільки ми не використовуємо velocity, ми самі кажемо, на скільки посунутись
-//            float stepDistance = (ziplineBaseSpeed * currentZiplineSpeedMod) * Time.fixedDeltaTime;
-//            Vector3 nextPosition = idealPositionOnLine + (zipDirection * stepDistance);
-
-//            // 4. Плавне згладжування (щоб не було різкого притягування)
-//            Vector3 smoothedPos = Vector3.Lerp(transform.position, nextPosition, Time.fixedDeltaTime * ziplineSnapSpeed);
-
-//            // 5. Використовуємо ТІЛЬКИ MovePosition
-//            rb.MovePosition(smoothedPos);
-
-//            if (visualModel != null)
-//            {
-//                Quaternion targetRot = Quaternion.LookRotation(zipDirection);
-//                visualModel.rotation = Quaternion.Lerp(visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
-//            }
-
+//            ProcessZiplineMovement();
 //            return;
 //        }
 
-//        //// ============================================
-
-//        //// ---> STANDARD PHYSICS
-//        //Vector3 customGravity = Vector3.down * gravityForce * gravityScale;
-//        //rb.AddForce(customGravity, ForceMode.Acceleration);
-
-//        //Vector3 currentVel = rb.velocity;
-//        //currentVel.x = forwardSpeed;
-
-//        //if (jumpRequested)
-//        //{
-//        //    currentVel.y = jumpForce * gravityScale;
-//        //    if (jumpParticles) jumpParticles.Play();
-//        //    if (audioSource && jumpSfx) audioSource.PlayOneShot(jumpSfx);
-//        //    jumpRequested = false;
-//        //    coyoteTimeCounter = 0f;
-//        //}
-//        //rb.velocity = currentVel;
-
-//        //CheckFrontCollision();
-//        //GroundCheck();
-//        if (!rb.isKinematic)
+//        if (!_rb.isKinematic)
 //        {
-//            // 1. Додаємо гравітацію
-//            Vector3 customGravity = Vector3.down * gravityForce * gravityScale;
-//            rb.AddForce(customGravity, ForceMode.Acceleration);
-
-//            // 2. Читаємо поточну швидкість
-//            Vector3 currentVel = rb.velocity;
-
-//            // 3. Встановлюємо швидкість вперед
-//            currentVel.x = forwardSpeed;
-
-//            // 4. Логіка стрибка
-//            if (jumpRequested)
-//            {
-//                currentVel.y = jumpForce * gravityScale;
-//                if (jumpParticles) jumpParticles.Play();
-//                if (audioSource && jumpSfx) audioSource.PlayOneShot(jumpSfx);
-//                jumpRequested = false;
-//                coyoteTimeCounter = 0f;
-//            }
-
-//            // 5. ПРИЗНАЧАЄМО ШВИДКІСТЬ (це саме той рядок, що викликав помилку)
-//            rb.velocity = currentVel;
+//            ProcessStandardPhysics();
 //        }
-
-//        // Перевірки мають бути поза блоком if(!rb.isKinematic), 
-//        // якщо ти хочеш, щоб вони працювали завжди, 
-//        // АБО всередині, якщо вони не потрібні під час зіплайну/смерті.
-//        CheckFrontCollision();
-//        GroundCheck();
 //    }
 
-//    // ---> ЛОГІКА ТРИГЕРІВ <---
+//    private void ProcessZiplineMovement()
+//    {
+//        Vector3 zipDirection = _currentZipline.right;
+//        Vector3 zipOrigin = _currentZipline.position;
+//        Vector3 playerDelta = transform.position - zipOrigin;
+//        Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
+//        Vector3 idealPositionOnLine = zipOrigin + projectedDelta;
 
-//    void OnTriggerEnter(Collider other)
+//        float stepDistance = (_ziplineBaseSpeed * _currentZiplineSpeedMod) * Time.fixedDeltaTime;
+//        Vector3 nextPosition = idealPositionOnLine + (zipDirection * stepDistance);
+//        Vector3 smoothedPos = Vector3.Lerp(transform.position, nextPosition, Time.fixedDeltaTime * _ziplineSnapSpeed);
+
+//        _rb.MovePosition(smoothedPos);
+
+//        if (_visualModel != null)
+//        {
+//            Quaternion targetRot = Quaternion.LookRotation(zipDirection);
+//            _visualModel.rotation = Quaternion.Lerp(_visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
+//        }
+//    }
+
+//    private void ProcessStandardPhysics()
+//    {
+//        Vector3 customGravity = Vector3.down * _gravityForce * _gravityScale;
+//        _rb.AddForce(customGravity, ForceMode.Acceleration);
+
+//        Vector3 currentVel = _rb.velocity;
+//        currentVel.x = _forwardSpeed;
+
+//        if (_jumpRequested)
+//        {
+//            currentVel.y = _jumpForce * _gravityScale;
+//            if (_jumpParticles) _jumpParticles.Play();
+//            if (_audioSource && _jumpSfx) _audioSource.PlayOneShot(_jumpSfx);
+//            _jumpRequested = false;
+//            _coyoteTimeCounter = 0f;
+//        }
+
+//        _rb.velocity = currentVel;
+//    }
+
+
+
+//    private void OnTriggerEnter(Collider other)
 //    {
 //        if (other.CompareTag("Zipline"))
 //        {
-//            bool isHolding = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
-//            if (isHolding) EnterZipline(other.transform);
+
+//            if (_isHoldingInput) EnterZipline(other.transform);
 //        }
 //        else
 //        {
 //            int hitLayer = other.gameObject.layer;
-//            bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || other.CompareTag("Obstacle");
+//            bool isObstacle = (_deadlyLayer != -1 && hitLayer == _deadlyLayer) || other.CompareTag("Obstacle");
 
 //            if (isObstacle)
 //            {
-//                if (isGhostMode && isPhasing) return;
-
-//                // Тепер ми логуємо саме ім'я об'єкта
-//                Debug.Log("<color=red>Trigger Death:</color> Зачепив " + other.gameObject.name);
+//                if (_isGhostMode && _isPhasing) return;
 //                Die();
 //            }
 //        }
 //    }
 
-//    void OnTriggerStay(Collider other)
+//    private void OnTriggerStay(Collider other)
 //    {
-//        if (other.CompareTag("Zipline") && !isZiplineMode)
+//        if (other.CompareTag("Zipline") && !_isZiplineMode)
 //        {
-//            bool isHolding = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
-//            if (isHolding) EnterZipline(other.transform);
+//            if (_isHoldingInput) EnterZipline(other.transform);
 //        }
 //    }
 
-//    void OnTriggerExit(Collider other)
+//    private void OnTriggerExit(Collider other)
 //    {
-//        if (isZiplineMode && other.CompareTag("Zipline") && other.transform == currentZipline)
+//        if (_isZiplineMode && other.CompareTag("Zipline") && other.transform == _currentZipline)
 //        {
 //            ExitZipline(false);
 //        }
 //    }
 
-//    // ---> МЕТОДИ КЕРУВАННЯ ZIPLINE
-
-//    void EnterZipline(Transform zipTransform)
+//    private void EnterZipline(Transform zipTransform)
 //    {
-//        isZiplineMode = true;
-//        currentZipline = zipTransform;
-//        jumpBufferCounter = 0f;
+//        _isZiplineMode = true;
+//        _currentZipline = zipTransform;
+//        _jumpBufferCounter = 0f;
 
 //        ZiplineObject zipObj = zipTransform.GetComponent<ZiplineObject>();
-//        currentZiplineSpeedMod = (zipObj != null) ? zipObj.speedMultiplier : 1f;
-//        rb.velocity = zipTransform.right * (ziplineBaseSpeed * currentZiplineSpeedMod);
-
-//        // ---> Я ПРИБРАВ ЦЕЙ РЯДОК <---
-//        // Тепер, якщо ви були перевернуті (павук), камера залишиться перевернутою і на зіплайні.
-//        // if (cameraFollow) cameraFollow.SetGravityFlipped(false); 
+//        _currentZiplineSpeedMod = (zipObj != null) ? zipObj.speedMultiplier : 1f;
+//        _rb.velocity = zipTransform.right * (_ziplineBaseSpeed * _currentZiplineSpeedMod);
 //    }
 
-//    void ExitZipline(bool jumpOut)
+//    private void ExitZipline(bool jumpOut)
 //    {
-//        isZiplineMode = false;
-//        currentZipline = null;
+//        _isZiplineMode = false;
+//        _currentZipline = null;
 
-//        if (visualModel != null) visualModel.rotation = Quaternion.identity;
+//        if (_visualModel != null) _visualModel.rotation = Quaternion.identity;
 
 //        if (!jumpOut)
 //        {
-//            Vector3 exitVel = rb.velocity;
-//            exitVel.x = forwardSpeed;
-//            rb.velocity = exitVel;
+//            Vector3 exitVel = _rb.velocity;
+//            exitVel.x = _forwardSpeed;
+//            _rb.velocity = exitVel;
 //        }
 //    }
 
-//    void HandleTriggerDeath(Collider other)
+//    private void CheckFrontCollision()
 //    {
-//        if (isDead) return;
-//        if (isGhostMode && isPhasing)
-//        {
-//            if (other.CompareTag("Obstacle") || other.gameObject.layer == deadlyLayer || other.gameObject.layer == wallLayer) return;
-//        }
-//        int hitLayer = other.gameObject.layer;
-//        bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || other.CompareTag("Obstacle");
-//        if (isObstacle) Die();
-//    }
+//        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
-//    //void CheckFrontCollision()
-//    //{
-//    //    if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
-//    //    RaycastHit hit;
-//    //    Vector3 origin = transform.position + (gravityScale > 0 ? Vector3.up : Vector3.down) * 0.5f;
-//    //    if (Physics.Raycast(origin, Vector3.right, out hit, 0.6f))
-//    //    {
-//    //        int hitLayer = hit.collider.gameObject.layer;
-//    //        bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || hit.collider.tag == "Obstacle";
-//    //        if (isObstacle) Die();
-//    //    }
-//    //}
-//    void CheckFrontCollision()
-//    {
-//        if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
-
-//        float rayLength = 0.51f + (Mathf.Abs(rb.velocity.x) * Time.fixedDeltaTime);
+//        float rayLength = 0.51f + (Mathf.Abs(_rb.velocity.x) * Time.fixedDeltaTime);
 //        Vector3 originTop = transform.position + Vector3.up * 0.4f;
 //        Vector3 originBottom = transform.position + Vector3.up * -0.4f;
 
 //        RaycastHit hit;
-//        bool hasHit = Physics.Raycast(originTop, Vector3.right, out hit, rayLength, groundMask | (1 << deadlyLayer)) ||
-//                      Physics.Raycast(originBottom, Vector3.right, out hit, rayLength, groundMask | (1 << deadlyLayer));
+//        bool hasHit = Physics.Raycast(originTop, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer)) ||
+//                      Physics.Raycast(originBottom, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer));
 
 //        if (hasHit && hit.collider != null && !hit.collider.isTrigger)
 //        {
-//            Debug.Log("<color=yellow>Raycast Death:</color> Перешкода попереду - " + hit.collider.gameObject.name);
 //            Die();
 //        }
 //    }
 
-//    //void OnCollisionEnter(Collision collision)
-//    //{
-//    //    if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
-//    //    int hitLayer = collision.gameObject.layer;
-//    //    bool isObstacle = (deadlyLayer != -1 && hitLayer == deadlyLayer) || collision.gameObject.CompareTag("Obstacle");
-//    //    if (isObstacle)
-//    //    {
-//    //        foreach (ContactPoint contact in collision.contacts)
-//    //        {
-//    //            if (gravityScale > 0 && contact.normal.y > 0.7f) return;
-//    //            if (gravityScale < 0 && contact.normal.y < -0.7f) return;
-//    //        }
-//    //        Die();
-//    //    }
-//    //}
-
-//    void OnCollisionEnter(Collision collision)
+//    private void OnCollisionEnter(Collision collision)
 //    {
-//        if (isDead || (isGhostMode && isPhasing) || isZiplineMode) return;
+//        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
 //        foreach (ContactPoint contact in collision.contacts)
 //        {
-//            // Приземлення зверху — безпечно
-//            if (gravityScale > 0 && contact.normal.y > 0.5f) return;
-//            if (gravityScale < 0 && contact.normal.y < -0.5f) return;
+//            if (_gravityScale > 0 && contact.normal.y > 0.5f) return;
+//            if (_gravityScale < 0 && contact.normal.y < -0.5f) return;
 
 //            int hitLayer = collision.gameObject.layer;
-//            // Якщо це твердий об'єкт (Ground або Wall)
-//            if (hitLayer == safeLayer || hitLayer == wallLayer || hitLayer == deadlyLayer)
+//            if (hitLayer == _safeLayer || hitLayer == _wallLayer || hitLayer == _deadlyLayer)
 //            {
-//                // Якщо удар був "лобовим" (нормаль спрямована проти руху)
 //                if (contact.normal.x < -0.1f)
 //                {
-//                    Debug.Log("<color=orange>Collision Death:</color> Врізався в бік " + collision.gameObject.name);
 //                    Die();
 //                    return;
 //                }
@@ -463,225 +378,218 @@
 //        }
 //    }
 
-//    void SetPhasingState(bool active)
+//    private void SetPhasingState(bool active)
 //    {
-//        if (isPhasing == active) return;
-//        isPhasing = active;
-//        if (modelRenderers != null)
-//            foreach (var r in modelRenderers)
+//        if (_isPhasing == active) return;
+//        _isPhasing = active;
+
+//        if (_modelRenderers != null)
+//        {
+//            foreach (var r in _modelRenderers)
+//            {
 //                foreach (var mat in r.materials)
 //                {
 //                    Color c = mat.color;
-//                    c.a = active ? ghostAlpha : 1f;
+//                    c.a = active ? _ghostAlpha : 1f;
 //                    mat.color = c;
 //                }
-//        if (deadlyLayer != -1) Physics.IgnoreLayerCollision(playerLayer, deadlyLayer, active);
-//        if (wallLayer != -1) Physics.IgnoreLayerCollision(playerLayer, wallLayer, active);
+//            }
+//        }
+
+//        if (_deadlyLayer != -1) Physics.IgnoreLayerCollision(_playerLayer, _deadlyLayer, active);
+//        if (_wallLayer != -1) Physics.IgnoreLayerCollision(_playerLayer, _wallLayer, active);
 //    }
 
-//    //public void Die()
-//    //{
-//    //    if (isDead) return;
-//    //    isDead = true;
-//    //    isZiplineMode = false;
-//    //    if (myCollider != null) myCollider.enabled = false;
-//    //    rb.detectCollisions = false;
-//    //    rb.velocity = Vector3.zero;
-//    //    rb.angularVelocity = Vector3.zero;
-//    //    rb.isKinematic = true;
-//    //    if (trail != null) trail.emitting = false;
-//    //    if (deathParticles) Instantiate(deathParticles, transform.position, Quaternion.identity);
-//    //    if (audioSource && deathSfx) audioSource.PlayOneShot(deathSfx);
-//    //    StartCoroutine(DeathAnimation());
-//    //}
 //    public void Die()
 //    {
-//        if (isDead) return;
-//        isDead = true;
-//        isZiplineMode = false;
+//        if (_isDead) return;
+//        _isDead = true;
+//        _isZiplineMode = false;
 
-//        // 1. Зупиняємо сторонні скрипти, які можуть керувати фізикою
 //        LaneRunner3D runner = GetComponent<LaneRunner3D>();
 //        if (runner != null) runner.enabled = false;
 
-//        Debug.Log("Player Died");
-
-//        // 2. БЕЗПЕЧНЕ ОБНУЛЕННЯ:
-//        // Перевіряємо, чи ми ще не kinematic, перш ніж ставити velocity
-//        if (!rb.isKinematic)
+//        if (!_rb.isKinematic)
 //        {
-//            rb.velocity = Vector3.zero;
-//            rb.angularVelocity = Vector3.zero;
+//            _rb.velocity = Vector3.zero;
+//            _rb.angularVelocity = Vector3.zero;
 //        }
 
-//        // 3. Тепер робимо тіло кінетичним
-//        rb.isKinematic = true;
-//        rb.detectCollisions = false;
+//        _rb.isKinematic = true;
+//        _rb.detectCollisions = false;
 
-//        if (myCollider != null) myCollider.enabled = false;
-//        if (trail != null) trail.emitting = false;
-//        if (deathParticles) Instantiate(deathParticles, transform.position, Quaternion.identity);
-//        if (audioSource && deathSfx) audioSource.PlayOneShot(deathSfx);
+//        if (_myCollider != null) _myCollider.enabled = false;
+//        if (_trail != null) _trail.emitting = false;
+
+//        if (_deathParticles) Instantiate(_deathParticles, transform.position, Quaternion.identity);
+//        if (_audioSource && _deathSfx) _audioSource.PlayOneShot(_deathSfx);
 
 //        StartCoroutine(DeathAnimation());
 //    }
 
-//    IEnumerator DeathAnimation()
+//    private IEnumerator DeathAnimation()
 //    {
 //        float t = 0f;
-//        Vector3 startScale = visualModel != null ? visualModel.localScale : transform.localScale;
+//        Vector3 startScale = _visualModel != null ? _visualModel.localScale : transform.localScale;
+
 //        while (t < 0.3f)
 //        {
 //            t += Time.unscaledDeltaTime;
 //            Vector3 newScale = Vector3.Lerp(startScale, Vector3.zero, t / 0.3f);
-//            if (visualModel != null) visualModel.localScale = newScale; else transform.localScale = newScale;
+//            if (_visualModel != null) _visualModel.localScale = newScale; else transform.localScale = newScale;
 //            yield return null;
 //        }
-//        if (visualModel != null) visualModel.localScale = Vector3.zero; else transform.localScale = Vector3.zero;
-//        if (levelManager) levelManager.PlayerDied(this);
+
+//        if (_visualModel != null) _visualModel.localScale = Vector3.zero; else transform.localScale = Vector3.zero;
+//        if (_levelManager) _levelManager.PlayerDied(this);
 //    }
 
 //    public void RespawnAt(Transform spawnPoint)
 //    {
-//        //if (spawnPoint == null) return; isDead = false; jumpRequested = false; jumpBufferCounter = 0f; coyoteTimeCounter = 0f; forwardSpeed = defaultSpeed;
-//        //SetMode("Cube"); gravityScale = 1f; rb.isKinematic = true; rb.detectCollisions = false; transform.position = spawnPoint.position; transform.rotation = spawnPoint.rotation;
-//        //if (visualModel != null) visualModel.localScale = Vector3.one; else transform.localScale = originalScale;
-//        //if (trail != null) { trail.Clear(); trail.emitting = true; }
-//        //if (spiderLine != null) spiderLine.enabled = false;
-//        //Physics.SyncTransforms(); if (myCollider != null) myCollider.enabled = true; rb.isKinematic = false; rb.detectCollisions = true; rb.velocity = Vector3.zero; rb.angularVelocity = Vector3.zero; jumpsLeft = maxJumps; isZiplineMode = false;
-
-//        //// ---> НОВЕ: Скидаємо камеру при респавні
-//        //if (cameraFollow) cameraFollow.SetGravityFlipped(false);
 //        if (spawnPoint == null) return;
 
-//        // 1. Скидаємо базові змінні
-//        isDead = false;
-//        jumpRequested = false;
-//        jumpBufferCounter = 0f;
-//        coyoteTimeCounter = 0f;
-//        forwardSpeed = defaultSpeed;
+//        _isDead = false;
+//        _jumpRequested = false;
+//        _jumpBufferCounter = 0f;
+//        _coyoteTimeCounter = 0f;
+//        _forwardSpeed = _defaultSpeed;
 
-//        // 2. Вимикаємо фізику на момент телепортації
-//        if (myCollider != null) myCollider.enabled = false;
-//        rb.isKinematic = true;
-//        rb.detectCollisions = false;
+//        if (_myCollider != null) _myCollider.enabled = false;
+//        _rb.isKinematic = true;
+//        _rb.detectCollisions = false;
 
-//        // 3. Телепортація на точку спавну
 //        transform.position = spawnPoint.position;
 //        transform.rotation = spawnPoint.rotation;
 
-//        // Скидання візуалу
-//        if (visualModel != null)
+//        if (_visualModel != null)
 //        {
-//            visualModel.localScale = Vector3.one;
-//            visualModel.localRotation = Quaternion.identity;
+//            _visualModel.localScale = Vector3.one;
+//            _visualModel.localRotation = Quaternion.identity;
 //        }
 //        else
 //        {
-//            transform.localScale = originalScale;
+//            transform.localScale = _originalScale;
 //        }
 
-//        if (trail != null) { trail.Clear(); trail.emitting = true; }
-//        if (spiderLine != null) spiderLine.enabled = false;
+//        if (_trail != null) { _trail.Clear(); _trail.emitting = true; }
+//        if (_spiderLine != null) _spiderLine.enabled = false;
 
-//        // Оновлюємо фізичний рушій
 //        Physics.SyncTransforms();
 
-//        // =========================================================
-//        // ---> ГОЛОВНЕ ВИПРАВЛЕННЯ ТУТ <---
-//        // =========================================================
-
-//        // 1. Знаходимо і ВИМИКАЄМО LaneRunner3D
-//        // Якщо цього не зробити, він продовжить керувати персонажем
 //        LaneRunner3D runnerScript = GetComponent<LaneRunner3D>();
-//        if (runnerScript != null)
-//        {
-//            runnerScript.enabled = false;
-//        }
+//        if (runnerScript != null) runnerScript.enabled = false;
 
-//        // 2. Вмикаємо цей скрипт (PlayerController)
 //        this.enabled = true;
 
-//        // 3. Скидаємо камеру (вимикаємо 3D режим і перевороти)
-//        if (cameraFollow)
+//        if (_cameraFollow)
 //        {
-//            cameraFollow.SetGravityFlipped(false);
-//            cameraFollow.Set3DView(false); // <--- Додайте цей метод у CameraFollow, якщо його немає, або просто ігноруйте, якщо камера сама перемикається
+//            _cameraFollow.SetGravityFlipped(false);
+//            _cameraFollow.Set3DView(false);
 //        }
 
-//        // 4. Скидаємо блокування осей фізики (щоб повернути стандартний рух)
-//        rb.constraints = RigidbodyConstraints.FreezeRotation;
+//        _rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-//        // 5. Вмикаємо фізику назад
-//        if (myCollider != null) myCollider.enabled = true;
-//        rb.isKinematic = false;
-//        rb.detectCollisions = true;
+//        if (_myCollider != null) _myCollider.enabled = true;
+//        _rb.isKinematic = false;
+//        _rb.detectCollisions = true;
+//        _rb.velocity = Vector3.zero;
+//        _rb.angularVelocity = Vector3.zero;
 
-//        // 6. Обнуляємо всю швидкість
-//        rb.velocity = Vector3.zero;
-//        rb.angularVelocity = Vector3.zero;
-
-//        // 7. Скидаємо режими
 //        SetMode("Cube");
-//        gravityScale = 1f;
-//        jumpsLeft = maxJumps;
-//        isZiplineMode = false;
+//        _gravityScale = 1f;
+//        _jumpsLeft = _extraAirJumps;
+//        _isZiplineMode = false;
 
-//        // 8. Страховка: Вирівнювання по Z (щоб точно був по центру)
 //        Vector3 flatPos = transform.position;
 //        flatPos.z = 0f;
 //        transform.position = flatPos;
 //    }
 
-//    void PerformSpiderTeleport()
+//    private void PerformSpiderTeleport()
 //    {
-//        Vector3 searchDirection = gravityScale > 0 ? Vector3.up : Vector3.down; RaycastHit hit;
-//        if (Physics.Raycast(transform.position, searchDirection, out hit, Mathf.Infinity, groundMask))
+//        Vector3 searchDirection = _gravityScale > 0 ? Vector3.up : Vector3.down;
+//        RaycastHit hit;
+
+//        if (Physics.Raycast(transform.position, searchDirection, out hit, Mathf.Infinity, _groundMask))
 //        {
-//            if (audioSource && gravitySwitchSfx) audioSource.PlayOneShot(gravitySwitchSfx);
-//            if (spiderTeleportParticles) Instantiate(spiderTeleportParticles, transform.position, Quaternion.identity);
-//            Vector3 startPos = transform.position; float playerHeightOffset = 0.5f;
+//            if (_audioSource && _gravitySwitchSfx) _audioSource.PlayOneShot(_gravitySwitchSfx);
+//            if (_spiderTeleportParticles) Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
+
+//            Vector3 startPos = transform.position;
+//            float playerHeightOffset = 0.5f;
 //            Vector3 targetPosition = hit.point + (searchDirection * -1 * playerHeightOffset);
 //            Vector3 finalPos = new Vector3(transform.position.x, targetPosition.y, transform.position.z);
-//            rb.interpolation = RigidbodyInterpolation.None; transform.position = finalPos; Physics.SyncTransforms(); rb.interpolation = RigidbodyInterpolation.Interpolate;
-//            if (trail != null) trail.Clear(); if (spiderLandParticles) Instantiate(spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+
+//            _rb.interpolation = RigidbodyInterpolation.None;
+//            transform.position = finalPos;
+//            Physics.SyncTransforms();
+//            _rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+//            if (_trail != null) _trail.Clear();
+//            if (_spiderLandParticles) Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+
 //            StartCoroutine(DrawSpiderBeam(startPos, finalPos));
 
-//            FlipGravity(); // Цей метод тепер викличе камеру
+//            FlipGravity();
 
-//            rb.velocity = new Vector3(rb.velocity.x, 0, 0);
+//            _rb.velocity = new Vector3(_rb.velocity.x, 0, 0);
 //        }
 //    }
 
-//    IEnumerator DrawSpiderBeam(Vector3 start, Vector3 end) { if (spiderLine != null) { spiderLine.enabled = true; spiderLine.SetPosition(0, start); spiderLine.SetPosition(1, end); yield return new WaitForSeconds(spiderBeamDuration); spiderLine.enabled = false; } }
+//    private IEnumerator DrawSpiderBeam(Vector3 start, Vector3 end)
+//    {
+//        if (_spiderLine != null)
+//        {
+//            _spiderLine.enabled = true;
+//            _spiderLine.SetPosition(0, start);
+//            _spiderLine.SetPosition(1, end);
+//            yield return new WaitForSeconds(_spiderBeamDuration);
+//            _spiderLine.enabled = false;
+//        }
+//    }
 
-//    // ---> НОВЕ: Оновлений метод FlipGravity
 //    public void FlipGravity()
 //    {
-//        gravityScale *= -1;
+//        _gravityScale *= -1;
 
-//        // Додано виклик камери:
-//        if (cameraFollow != null)
-//            cameraFollow.SetGravityFlipped(gravityScale < 0);
+//        if (_cameraFollow != null)
+//            _cameraFollow.SetGravityFlipped(_gravityScale < 0);
 //    }
 
 //    public void SetMode(string modeName)
 //    {
-//        isGravityMode = false; isSpiderMode = false; isGhostMode = false; SetPhasingState(false);
-//        if (visualModel != null) visualModel.localScale = Vector3.one;
+//        _isGravityMode = false; _isSpiderMode = false; _isGhostMode = false; SetPhasingState(false);
+//        if (_visualModel != null) _visualModel.localScale = Vector3.one;
+
 //        if (modeName == "Cube")
 //        {
-//            gravityScale = 1f;
-//            // ---> НОВЕ: Скидаємо камеру, якщо повернулися в режим Куба
-//            if (cameraFollow) cameraFollow.SetGravityFlipped(false);
+//            _gravityScale = 1f;
+//            if (_cameraFollow) _cameraFollow.SetGravityFlipped(false);
 //        }
-//        else if (modeName == "Ball") isGravityMode = true; else if (modeName == "Spider") isSpiderMode = true; else if (modeName == "Ghost") isGhostMode = true;
+//        else if (modeName == "Ball") _isGravityMode = true;
+//        else if (modeName == "Spider") _isSpiderMode = true;
+//        else if (modeName == "Ghost") _isGhostMode = true;
 //    }
 
-//    public void SetSFXVolume(float volume) { if (audioSource != null) audioSource.volume = volume; }
-//    void GroundCheck() { RaycastHit hit; Vector3 origin = transform.position + groundCheckOffset; Vector3 checkDirection = gravityScale > 0 ? Vector3.down : Vector3.up; isGrounded = Physics.Raycast(origin, checkDirection, out hit, groundCheckDistance, groundMask); }
-//    public void Win() { rb.velocity = Vector3.zero; rb.isKinematic = true; if (myCollider != null) myCollider.enabled = false; enabled = false; }
-//    public void ResetJumpsFromPad() { jumpsLeft = maxJumps; }
+//    public void SetSFXVolume(float volume) { if (_audioSource != null) _audioSource.volume = volume; }
+
+//    private void GroundCheck()
+//    {
+//        RaycastHit hit;
+//        Vector3 origin = transform.position + _groundCheckOffset;
+//        Vector3 checkDirection = _gravityScale > 0 ? Vector3.down : Vector3.up;
+//        _isGrounded = Physics.Raycast(origin, checkDirection, out hit, _groundCheckDistance, _groundMask);
+//    }
+
+//    public void Win()
+//    {
+//        _rb.velocity = Vector3.zero;
+//        _rb.isKinematic = true;
+//        if (_myCollider != null) _myCollider.enabled = false;
+//        enabled = false;
+//    }
+
+//    public void ResetJumpsFromPad() { _jumpsLeft = _extraAirJumps; }
 //}
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -727,18 +635,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _groundCheckDistance = 0.6f;
     [SerializeField] private Vector3 _groundCheckOffset = Vector3.zero;
 
-    [Header("Effects")]
-    [SerializeField] private ParticleSystem _jumpParticles;
-    [SerializeField] private ParticleSystem _deathParticles;
-    [SerializeField] private ParticleSystem _spiderTeleportParticles;
-    [SerializeField] private ParticleSystem _spiderLandParticles;
+    [Header("Effects (Object Pool)")]
+    [SerializeField] private GameObject _jumpParticles;
+    [SerializeField] private string _jumpPoolTag = "JumpDust";
+
+    [SerializeField] private GameObject _deathParticles;
+    [SerializeField] private string _deathPoolTag = "DeathExplosion";
+
+    [SerializeField] private GameObject _spiderTeleportParticles;
+    [SerializeField] private string _spiderTeleportPoolTag = "Spark"; 
+
+    [SerializeField] private GameObject _spiderLandParticles;
+    [SerializeField] private string _spiderLandPoolTag = "SpiderLand";
 
     [Header("Audio SFX")]
     [SerializeField] private AudioClip _jumpSfx;
     [SerializeField] private AudioClip _deathSfx;
     [SerializeField] private AudioClip _gravitySwitchSfx;
 
-    
+
     private Rigidbody _rb;
     private Collider _myCollider;
     private AudioSource _audioSource;
@@ -747,7 +662,7 @@ public class PlayerController : MonoBehaviour
     private LineRenderer _spiderLine;
     private Renderer[] _modelRenderers;
 
-    
+
     private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
     private float _defaultSpeed;
     private Vector3 _originalScale;
@@ -759,9 +674,9 @@ public class PlayerController : MonoBehaviour
     private bool _isDead = false;
     private bool _isGrounded = false;
     private bool _jumpRequested = false;
-    private bool _isHoldingInput = false; 
+    private bool _isHoldingInput = false;
 
-   
+
     private bool _isGravityMode = false;
     private bool _isSpiderMode = false;
     private bool _isGhostMode = false;
@@ -771,7 +686,7 @@ public class PlayerController : MonoBehaviour
     private Transform _currentZipline;
     private float _currentZiplineSpeedMod = 1f;
 
-    
+
     public float ForwardSpeed
     {
         get => _forwardSpeed;
@@ -821,7 +736,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_isDead) return;
 
-        
+
         GroundCheck();
 
         HandleInput();
@@ -832,7 +747,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInput()
     {
-        
+
         _isHoldingInput = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
 
         bool isPressedDown = Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ||
@@ -904,7 +819,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CheckFrontCollision(); 
+        CheckFrontCollision();
 
         if (_isZiplineMode && _currentZipline != null)
         {
@@ -950,7 +865,20 @@ public class PlayerController : MonoBehaviour
         if (_jumpRequested)
         {
             currentVel.y = _jumpForce * _gravityScale;
-            if (_jumpParticles) _jumpParticles.Play();
+
+           
+            if (_jumpParticles != null)
+            {
+                if (PoolManager.Instance != null)
+                {
+                    PoolManager.Instance.SpawnFromPool(_jumpPoolTag, transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    Instantiate(_jumpParticles, transform.position, Quaternion.identity);
+                }
+            }
+
             if (_audioSource && _jumpSfx) _audioSource.PlayOneShot(_jumpSfx);
             _jumpRequested = false;
             _coyoteTimeCounter = 0f;
@@ -959,13 +887,13 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = currentVel;
     }
 
-   
+
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Zipline"))
         {
-            
+
             if (_isHoldingInput) EnterZipline(other.transform);
         }
         else
@@ -1105,7 +1033,19 @@ public class PlayerController : MonoBehaviour
         if (_myCollider != null) _myCollider.enabled = false;
         if (_trail != null) _trail.emitting = false;
 
-        if (_deathParticles) Instantiate(_deathParticles, transform.position, Quaternion.identity);
+       
+        if (_deathParticles != null)
+        {
+            if (PoolManager.Instance != null)
+            {
+                PoolManager.Instance.SpawnFromPool(_deathPoolTag, transform.position, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(_deathParticles, transform.position, Quaternion.identity);
+            }
+        }
+
         if (_audioSource && _deathSfx) _audioSource.PlayOneShot(_deathSfx);
 
         StartCoroutine(DeathAnimation());
@@ -1197,7 +1137,19 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, searchDirection, out hit, Mathf.Infinity, _groundMask))
         {
             if (_audioSource && _gravitySwitchSfx) _audioSource.PlayOneShot(_gravitySwitchSfx);
-            if (_spiderTeleportParticles) Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
+
+          
+            if (_spiderTeleportParticles != null)
+            {
+                if (PoolManager.Instance != null)
+                {
+                    PoolManager.Instance.SpawnFromPool(_spiderTeleportPoolTag, transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
+                }
+            }
 
             Vector3 startPos = transform.position;
             float playerHeightOffset = 0.5f;
@@ -1210,7 +1162,19 @@ public class PlayerController : MonoBehaviour
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
 
             if (_trail != null) _trail.Clear();
-            if (_spiderLandParticles) Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+
+            // --- Використання пулу для приземлення ---
+            if (_spiderLandParticles != null)
+            {
+                if (PoolManager.Instance != null)
+                {
+                    PoolManager.Instance.SpawnFromPool(_spiderLandPoolTag, finalPos, Quaternion.LookRotation(hit.normal));
+                }
+                else
+                {
+                    Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+                }
+            }
 
             StartCoroutine(DrawSpiderBeam(startPos, finalPos));
 
