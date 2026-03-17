@@ -110,6 +110,8 @@ public class PauseMenuManager : MonoBehaviour
     [SerializeField] private Button _restartButton;
     [SerializeField] private Button _mainMenuButton;
 
+    [SerializeField] private WinScreenController _winScreen;
+
     [Header("Volume Sliders")]
     [SerializeField] private Slider _gameMusicSlider;
     [SerializeField] private Slider _sfxSlider;
@@ -152,8 +154,11 @@ public class PauseMenuManager : MonoBehaviour
 
     private void Update()
     {
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (_winScreen != null && _winScreen.gameObject.activeInHierarchy) return;
+
             if (_isPaused) ResumeGame();
             else PauseGame();
         }
