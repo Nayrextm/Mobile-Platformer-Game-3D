@@ -208,6 +208,9 @@ public class DatabaseManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            Application.targetFrameRate = 60;
+
             InitializeDatabase();
         }
         else

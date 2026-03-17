@@ -208,10 +208,10 @@ public class LaneRunner3D : MonoBehaviour
 
     [Header("≈фекти (Object Pool)")]
     [SerializeField] private GameObject _ghostPrefab;
-    [SerializeField] private string _ghostPoolTag = "Ghost"; 
+    [SerializeField] private string _ghostPoolTag = "Ghost";
 
     [SerializeField] private GameObject _teleportEffect;
-    [SerializeField] private string _teleportPoolTag = "Spark"; 
+    [SerializeField] private string _teleportPoolTag = "Spark";
     [SerializeField] private AudioClip _teleportSound;
 
 
@@ -254,7 +254,7 @@ public class LaneRunner3D : MonoBehaviour
             _rb.constraints = RigidbodyConstraints.FreezeRotation;
         }
 
-       
+
     }
 
     public void ResetRun()
@@ -300,14 +300,14 @@ public class LaneRunner3D : MonoBehaviour
         float currentYVelocity = _rb.velocity.y;
         currentYVelocity -= _extraGravity * Time.fixedDeltaTime;
 
-        Vector3 targetVelocity = new Vector3(_forwardSpeed, currentYVelocity, 0);
-        _rb.velocity = targetVelocity;
-
         Vector3 currentPos = _rb.position;
         float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
 
-        Vector3 newPos = new Vector3(currentPos.x, currentPos.y, targetZ);
-        _rb.MovePosition(newPos);
+        float currentZVelocity = (targetZ - currentPos.z) * 10f;
+
+        Vector3 targetVelocity = new Vector3(_forwardSpeed, currentYVelocity, currentZVelocity);
+
+        _rb.velocity = targetVelocity;
     }
 
     private void SwitchLane()
@@ -320,7 +320,7 @@ public class LaneRunner3D : MonoBehaviour
         float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
         Vector3 newPosition = new Vector3(oldPosition.x, oldPosition.y, targetZ);
 
-       
+
         if (_ghostPrefab != null)
         {
             GameObject ghost = null;
@@ -333,7 +333,7 @@ public class LaneRunner3D : MonoBehaviour
                 ghost = Instantiate(_ghostPrefab, oldPosition, transform.rotation);
             }
 
-           
+
             if (ghost != null)
             {
                 ghost.transform.localScale = transform.localScale;
@@ -345,7 +345,7 @@ public class LaneRunner3D : MonoBehaviour
 
         if (_teleportSound && _audioSource) _audioSource.PlayOneShot(_teleportSound);
 
-        
+
         if (_teleportEffect != null)
         {
             GameObject teleportObj = null;
@@ -358,7 +358,7 @@ public class LaneRunner3D : MonoBehaviour
                 teleportObj = Instantiate(_teleportEffect, transform.position, Quaternion.identity);
             }
 
-            
+
             if (teleportObj != null && teleportObj.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
             {
                 ps.Emit(30);

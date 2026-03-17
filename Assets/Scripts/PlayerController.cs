@@ -603,7 +603,6 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Visuals")]
     [SerializeField] private Transform _visualModel;
-    //Не використовується для обертання -> [SerializeField] private float _rotationSpeed = 360f;
     [SerializeField] private TrailRenderer _trail;
 
     [Header("Ghost Settings")]
@@ -643,7 +642,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private string _deathPoolTag = "DeathExplosion";
 
     [SerializeField] private GameObject _spiderTeleportParticles;
-    [SerializeField] private string _spiderTeleportPoolTag = "Spark"; 
+    [SerializeField] private string _spiderTeleportPoolTag = "Spark";
 
     [SerializeField] private GameObject _spiderLandParticles;
     [SerializeField] private string _spiderLandPoolTag = "SpiderLand";
@@ -662,7 +661,6 @@ public class PlayerController : MonoBehaviour
     private LineRenderer _spiderLine;
     private Renderer[] _modelRenderers;
 
-
     private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
     private float _defaultSpeed;
     private Vector3 _originalScale;
@@ -676,7 +674,6 @@ public class PlayerController : MonoBehaviour
     private bool _jumpRequested = false;
     private bool _isHoldingInput = false;
 
-
     private bool _isGravityMode = false;
     private bool _isSpiderMode = false;
     private bool _isGhostMode = false;
@@ -685,7 +682,6 @@ public class PlayerController : MonoBehaviour
 
     private Transform _currentZipline;
     private float _currentZiplineSpeedMod = 1f;
-
 
     public float ForwardSpeed
     {
@@ -736,9 +732,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_isDead) return;
 
-
         GroundCheck();
-
         HandleInput();
         UpdateTimers();
         ProcessJumpLogic();
@@ -747,7 +741,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInput()
     {
-
         _isHoldingInput = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
 
         bool isPressedDown = Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ||
@@ -819,8 +812,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CheckFrontCollision();
-
         if (_isZiplineMode && _currentZipline != null)
         {
             ProcessZiplineMovement();
@@ -837,20 +828,20 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 zipDirection = _currentZipline.right;
         Vector3 zipOrigin = _currentZipline.position;
-        Vector3 playerDelta = transform.position - zipOrigin;
+
+        Vector3 playerDelta = _rb.position - zipOrigin;
         Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
-        Vector3 idealPositionOnLine = zipOrigin + projectedDelta;
+        Vector3 exactPositionOnLine = zipOrigin + projectedDelta;
 
-        float stepDistance = (_ziplineBaseSpeed * _currentZiplineSpeedMod) * Time.fixedDeltaTime;
-        Vector3 nextPosition = idealPositionOnLine + (zipDirection * stepDistance);
-        Vector3 smoothedPos = Vector3.Lerp(transform.position, nextPosition, Time.fixedDeltaTime * _ziplineSnapSpeed);
+        Vector3 snapVector = exactPositionOnLine - _rb.position;
+        Vector3 targetVelocity = (zipDirection * _ziplineBaseSpeed * _currentZiplineSpeedMod) + (snapVector * _ziplineSnapSpeed);
 
-        _rb.MovePosition(smoothedPos);
+        _rb.velocity = targetVelocity;
 
         if (_visualModel != null)
         {
             Quaternion targetRot = Quaternion.LookRotation(zipDirection);
-            _visualModel.rotation = Quaternion.Lerp(_visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
+            _visualModel.rotation = Quaternion.Lerp(_visualModel.rotation, targetRot, Time.fixedDeltaTime * 15f);
         }
     }
 
@@ -866,17 +857,12 @@ public class PlayerController : MonoBehaviour
         {
             currentVel.y = _jumpForce * _gravityScale;
 
-           
             if (_jumpParticles != null)
             {
                 if (PoolManager.Instance != null)
-                {
                     PoolManager.Instance.SpawnFromPool(_jumpPoolTag, transform.position, Quaternion.identity);
-                }
                 else
-                {
                     Instantiate(_jumpParticles, transform.position, Quaternion.identity);
-                }
             }
 
             if (_audioSource && _jumpSfx) _audioSource.PlayOneShot(_jumpSfx);
@@ -887,13 +873,10 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = currentVel;
     }
 
-
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Zipline"))
         {
-
             if (_isHoldingInput) EnterZipline(other.transform);
         }
         else
@@ -932,8 +915,8 @@ public class PlayerController : MonoBehaviour
         _jumpBufferCounter = 0f;
 
         ZiplineObject zipObj = zipTransform.GetComponent<ZiplineObject>();
-        _currentZiplineSpeedMod = (zipObj != null) ? zipObj.speedMultiplier : 1f;
-        _rb.velocity = zipTransform.right * (_ziplineBaseSpeed * _currentZiplineSpeedMod);
+        _currentZiplineSpeedMod = (zipObj != null) ? zipObj.SpeedMultiplier : 1f;
+
     }
 
     private void ExitZipline(bool jumpOut)
@@ -951,40 +934,46 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CheckFrontCollision()
+
+    private void OnCollisionEnter(Collision collision) { ProcessPhysicalHit(collision); }
+    private void OnCollisionStay(Collision collision) { ProcessPhysicalHit(collision); }
+
+    private void ProcessPhysicalHit(Collision collision)
     {
         if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
-        float rayLength = 0.51f + (Mathf.Abs(_rb.velocity.x) * Time.fixedDeltaTime);
-        Vector3 originTop = transform.position + Vector3.up * 0.4f;
-        Vector3 originBottom = transform.position + Vector3.up * -0.4f;
+        int hitLayer = collision.gameObject.layer;
 
-        RaycastHit hit;
-        bool hasHit = Physics.Raycast(originTop, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer)) ||
-                      Physics.Raycast(originBottom, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer));
-
-        if (hasHit && hit.collider != null && !hit.collider.isTrigger)
+        
+        if (hitLayer == _deadlyLayer || collision.gameObject.CompareTag("Obstacle"))
         {
             Die();
+            return;
         }
-    }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
-
-        foreach (ContactPoint contact in collision.contacts)
+       
+        if (hitLayer == _safeLayer || hitLayer == _wallLayer)
         {
-            if (_gravityScale > 0 && contact.normal.y > 0.5f) return;
-            if (_gravityScale < 0 && contact.normal.y < -0.5f) return;
-
-            int hitLayer = collision.gameObject.layer;
-            if (hitLayer == _safeLayer || hitLayer == _wallLayer || hitLayer == _deadlyLayer)
+            foreach (ContactPoint contact in collision.contacts)
             {
+                
                 if (contact.normal.x < -0.1f)
                 {
-                    Die();
-                    return;
+                    float hitHeightDiff = contact.point.y - transform.position.y;
+
+                    
+                    if (_gravityScale > 0 && hitHeightDiff > -0.3f)
+                    {
+                       
+                        Die();
+                        return;
+                    }
+                    else if (_gravityScale < 0 && hitHeightDiff < 0.3f)
+                    {
+                        
+                        Die();
+                        return;
+                    }
                 }
             }
         }
@@ -1033,17 +1022,12 @@ public class PlayerController : MonoBehaviour
         if (_myCollider != null) _myCollider.enabled = false;
         if (_trail != null) _trail.emitting = false;
 
-       
         if (_deathParticles != null)
         {
             if (PoolManager.Instance != null)
-            {
                 PoolManager.Instance.SpawnFromPool(_deathPoolTag, transform.position, Quaternion.identity);
-            }
             else
-            {
                 Instantiate(_deathParticles, transform.position, Quaternion.identity);
-            }
         }
 
         if (_audioSource && _deathSfx) _audioSource.PlayOneShot(_deathSfx);
@@ -1138,17 +1122,12 @@ public class PlayerController : MonoBehaviour
         {
             if (_audioSource && _gravitySwitchSfx) _audioSource.PlayOneShot(_gravitySwitchSfx);
 
-          
             if (_spiderTeleportParticles != null)
             {
                 if (PoolManager.Instance != null)
-                {
                     PoolManager.Instance.SpawnFromPool(_spiderTeleportPoolTag, transform.position, Quaternion.identity);
-                }
                 else
-                {
                     Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
-                }
             }
 
             Vector3 startPos = transform.position;
@@ -1163,23 +1142,16 @@ public class PlayerController : MonoBehaviour
 
             if (_trail != null) _trail.Clear();
 
-            // --- Використання пулу для приземлення ---
             if (_spiderLandParticles != null)
             {
                 if (PoolManager.Instance != null)
-                {
                     PoolManager.Instance.SpawnFromPool(_spiderLandPoolTag, finalPos, Quaternion.LookRotation(hit.normal));
-                }
                 else
-                {
                     Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
-                }
             }
 
             StartCoroutine(DrawSpiderBeam(startPos, finalPos));
-
             FlipGravity();
-
             _rb.velocity = new Vector3(_rb.velocity.x, 0, 0);
         }
     }
@@ -1199,9 +1171,7 @@ public class PlayerController : MonoBehaviour
     public void FlipGravity()
     {
         _gravityScale *= -1;
-
-        if (_cameraFollow != null)
-            _cameraFollow.SetGravityFlipped(_gravityScale < 0);
+        if (_cameraFollow != null) _cameraFollow.SetGravityFlipped(_gravityScale < 0);
     }
 
     public void SetMode(string modeName)
