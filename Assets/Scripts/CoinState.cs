@@ -4,5 +4,5 @@ public class CoinState
 {
     
     [PrimaryKey]
-    public string UniqueID { get; set; }
+    public int UniqueID { get; set; }
 }

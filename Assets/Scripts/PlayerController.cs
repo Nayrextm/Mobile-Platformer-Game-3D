@@ -944,33 +944,27 @@ public class PlayerController : MonoBehaviour
 
         int hitLayer = collision.gameObject.layer;
 
-        
         if (hitLayer == _deadlyLayer || collision.gameObject.CompareTag("Obstacle"))
         {
             Die();
             return;
         }
 
-       
         if (hitLayer == _safeLayer || hitLayer == _wallLayer)
         {
             foreach (ContactPoint contact in collision.contacts)
             {
-                
                 if (contact.normal.x < -0.1f)
                 {
                     float hitHeightDiff = contact.point.y - transform.position.y;
 
-                    
                     if (_gravityScale > 0 && hitHeightDiff > -0.3f)
                     {
-                       
                         Die();
                         return;
                     }
                     else if (_gravityScale < 0 && hitHeightDiff < 0.3f)
                     {
-                        
                         Die();
                         return;
                     }
@@ -1020,7 +1014,8 @@ public class PlayerController : MonoBehaviour
         _rb.detectCollisions = false;
 
         if (_myCollider != null) _myCollider.enabled = false;
-        if (_trail != null) _trail.emitting = false;
+
+        if (_trail != null) { _trail.emitting = false; _trail.Clear(); }
 
         if (_deathParticles != null)
         {
@@ -1079,7 +1074,13 @@ public class PlayerController : MonoBehaviour
             transform.localScale = _originalScale;
         }
 
-        if (_trail != null) { _trail.Clear(); _trail.emitting = true; }
+
+        if (_trail != null)
+        {
+            _trail.Clear();
+            _trail.emitting = true;
+        }
+
         if (_spiderLine != null) _spiderLine.enabled = false;
 
         Physics.SyncTransforms();
@@ -1204,6 +1205,10 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = Vector3.zero;
         _rb.isKinematic = true;
         if (_myCollider != null) _myCollider.enabled = false;
+
+       
+        if (_trail != null) _trail.emitting = false;
+
         enabled = false;
     }
 

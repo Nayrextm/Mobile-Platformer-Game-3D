@@ -195,53 +195,52 @@ public class StarCoin : MonoBehaviour
 {
     [Header("Налаштування")]
     [Tooltip("Унікальний ID монети на рівні (наприклад: 0, 1 або 2)")]
-    [SerializeField] private int coinID;
+    [SerializeField] private int _coinID;
 
     [Header("Візуалізація (DOTween)")]
-    [SerializeField] private float bobDuration = 1f;
-    [SerializeField] private float bobHeight = 0.5f;
-    [SerializeField] private float rotateDuration = 2f;
+    [SerializeField] private float _bobDuration = 1f;
+    [SerializeField] private float _bobHeight = 0.5f;
+    [SerializeField] private float _rotateDuration = 2f;
 
     [Header("Компоненти")]
-    [SerializeField] private GameObject visualModel;
-    [SerializeField] private Collider myCollider;
+    [SerializeField] private GameObject _visualModel;
+    [SerializeField] private Collider _myCollider;
 
     [Header("Матеріали")]
-    [SerializeField] private Material ghostMaterial;
+    [SerializeField] private Material _ghostMaterial;
 
     [Header("Ефекти")]
-    // ЗМІНЕНО ТУТ: Змінив ParticleSystem на GameObject для сумісності з PoolManager
-    [SerializeField] private GameObject pickupEffect;
-    // ЗМІНЕНО ТУТ: Додано тег пулу
-    [SerializeField] private string poolTag = "Spark";
-    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private GameObject _pickupEffect;
 
-    private Vector3 startPos;
-    private Material normalMaterial;
-    private Renderer myRenderer;
-    private string currentSceneName;
-    private bool isPermanentlyCollected = false;
-    private bool isCollectedInRun = false;
+    [SerializeField] private string _poolTag = "Spark";
+    [SerializeField] private AudioClip _pickupSound;
 
-    public int CoinID => coinID;
+    private Vector3 _startPos;
+    private Material _normalMaterial;
+    private Renderer _myRenderer;
+    private string _currentSceneName;
+    private bool _isPermanentlyCollected = false;
+    private bool _isCollectedInRun = false;
+
+    public int CoinID => _coinID;
 
     private void Awake()
     {
-        currentSceneName = SceneManager.GetActiveScene().name;
+        _currentSceneName = SceneManager.GetActiveScene().name;
 
-        if (visualModel != null)
+        if (_visualModel != null)
         {
-            myRenderer = visualModel.GetComponent<Renderer>();
-            if (myRenderer != null)
+            _myRenderer = _visualModel.GetComponent<Renderer>();
+            if (_myRenderer != null)
             {
-                normalMaterial = myRenderer.sharedMaterial;
+                _normalMaterial = _myRenderer.sharedMaterial;
             }
         }
     }
 
     private void Start()
     {
-        startPos = transform.position;
+        _startPos = transform.position;
 
         if (LevelManager.Instance != null)
         {
@@ -250,13 +249,13 @@ public class StarCoin : MonoBehaviour
 
         ResetCoin();
 
-        transform.DORotate(new Vector3(0, 360, 0), rotateDuration, RotateMode.FastBeyond360)
+        transform.DORotate(new Vector3(0, 360, 0), _rotateDuration, RotateMode.FastBeyond360)
                  .SetLoops(-1, LoopType.Incremental)
                  .SetRelative()
                  .SetEase(Ease.Linear)
                  .SetLink(gameObject);
 
-        transform.DOMoveY(startPos.y + bobHeight, bobDuration)
+        transform.DOMoveY(_startPos.y + _bobHeight, _bobDuration)
                  .SetLoops(-1, LoopType.Yoyo)
                  .SetEase(Ease.InOutSine)
                  .SetLink(gameObject);
@@ -272,10 +271,10 @@ public class StarCoin : MonoBehaviour
 
     private void ResetCoin()
     {
-        isCollectedInRun = false;
+        _isCollectedInRun = false;
         CheckDatabase();
 
-        if (isPermanentlyCollected)
+        if (_isPermanentlyCollected)
         {
             MakeGhost();
         }
@@ -289,34 +288,34 @@ public class StarCoin : MonoBehaviour
     {
         if (DatabaseManager.Instance != null)
         {
-            isPermanentlyCollected = DatabaseManager.Instance.IsStarCoinCollected(currentSceneName, coinID);
+            _isPermanentlyCollected = DatabaseManager.Instance.IsStarCoinCollected(_currentSceneName, _coinID);
         }
     }
 
     private void MakeGhost()
     {
-        if (visualModel) visualModel.SetActive(true);
-        if (myCollider) myCollider.enabled = false;
-        if (myRenderer != null && ghostMaterial != null)
+        if (_visualModel) _visualModel.SetActive(true);
+        if (_myCollider) _myCollider.enabled = false;
+        if (_myRenderer != null && _ghostMaterial != null)
         {
-            myRenderer.sharedMaterial = ghostMaterial;
+            _myRenderer.sharedMaterial = _ghostMaterial;
         }
     }
 
     private void MakeNormal()
     {
-        if (visualModel) visualModel.SetActive(true);
-        if (myCollider) myCollider.enabled = true;
+        if (_visualModel) _visualModel.SetActive(true);
+        if (_myCollider) _myCollider.enabled = true;
 
-        if (myRenderer != null && normalMaterial != null)
+        if (_myRenderer != null && _normalMaterial != null)
         {
-            myRenderer.sharedMaterial = normalMaterial;
+            _myRenderer.sharedMaterial = _normalMaterial;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isCollectedInRun || isPermanentlyCollected) return;
+        if (_isCollectedInRun || _isPermanentlyCollected) return;
 
         if (other.CompareTag("Player"))
         {
@@ -326,35 +325,35 @@ public class StarCoin : MonoBehaviour
 
     private void Collect()
     {
-        isCollectedInRun = true;
+        _isCollectedInRun = true;
 
         if (LevelManager.Instance != null)
         {
-            LevelManager.Instance.CollectCoinTemp(coinID);
+            LevelManager.Instance.CollectCoinTemp(_coinID);
         }
 
       
-        if (pickupEffect != null)
+        if (_pickupEffect != null)
         {
             if (PoolManager.Instance != null)
             {
-                PoolManager.Instance.SpawnFromPool(poolTag, transform.position, Quaternion.identity);
+                PoolManager.Instance.SpawnFromPool(_poolTag, transform.position, Quaternion.identity);
             }
             else
             {
-                Instantiate(pickupEffect, transform.position, Quaternion.identity);
+                Instantiate(_pickupEffect, transform.position, Quaternion.identity);
             }
         }
         
 
-        if (pickupSound)
+        if (_pickupSound)
         {
             float volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
-            AudioSource.PlayClipAtPoint(pickupSound, transform.position, volume);
+            AudioSource.PlayClipAtPoint(_pickupSound, transform.position, volume);
         }
 
-        if (visualModel) visualModel.SetActive(false);
-        if (myCollider) myCollider.enabled = false;
+        if (_visualModel) _visualModel.SetActive(false);
+        if (_myCollider) _myCollider.enabled = false;
     }
 
 #if UNITY_EDITOR
@@ -368,7 +367,7 @@ public class StarCoin : MonoBehaviour
 
         Vector3 labelPosition = transform.position + Vector3.up * 1.5f;
 
-        Handles.Label(labelPosition, $"ID: {coinID}", style);
+        Handles.Label(labelPosition, $"ID: {_coinID}", style);
     }
 #endif
 }

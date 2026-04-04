@@ -12,6 +12,6 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: df2f9f5e098c81340b5db6f33e757910
   - enabled: 1
-    path: Assets/Scenes/LevelTest.unity
+    path: Assets/Scenes/Synthwave.unity
     guid: fcc7af5e22f066d41b58cc9d2d0cc3d6
   m_configObjects: {}

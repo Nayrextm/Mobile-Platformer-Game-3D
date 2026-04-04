@@ -49,7 +49,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1571946565847623843}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -132,7 +132,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2735775891617480451}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -219,6 +219,7 @@ MonoBehaviour:
   _bobHeight: 0.5
   _visualModel: {fileID: 5751951604556448030}
   _pickupEffect: {fileID: 7972039928552337728, guid: b57599bafcae006479cc96a32a280c04, type: 3}
+  _poolTag: Spark
   _pickupSound: {fileID: 8300000, guid: 2a71d8e8ea428e0409d3df636b9f0192, type: 3}
 --- !u!136 &440488185166791072
 CapsuleCollider:

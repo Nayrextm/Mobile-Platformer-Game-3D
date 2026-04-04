@@ -1,26 +1,44 @@
 
 //using UnityEngine;
 
+//[RequireComponent(typeof(Collider))]
 //public class FinishPortal : MonoBehaviour
 //{
-//    public ParticleSystem finishEffect;
-//    public AudioSource finishSound;
+//    [Header("≈фекти")]
+//    [SerializeField] private ParticleSystem _finishEffect;
+//    [SerializeField] private AudioSource _finishSound;
+
+//    private bool _isFinished = false;
+
+//    private void Awake()
+//    {
+//        GetComponent<Collider>().isTrigger = true;
+
+//        if (_finishSound != null)
+//        {
+//            _finishSound.volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+//        }
+//    }
 
 //    private void OnTriggerEnter(Collider other)
 //    {
-//        // ѕерев≥р€Їмо, чи зайшов гравець
-//        PlayerController player = other.GetComponent<PlayerController>();
+//        if (_isFinished) return;
 
-//        if (player != null)
+//        if (other.CompareTag("Player"))
 //        {
-//            // √раЇмо ефекти
-//            if (finishEffect) finishEffect.Play();
-//            if (finishSound) finishSound.Play();
+//            PlayerController player = other.GetComponent<PlayerController>();
 
-//            // ¬икликаЇмо ф≥н≥ш через Singleton (швидше ≥ над≥йн≥ше)
-//            if (LevelManager.Instance != null)
+//            if (player != null)
 //            {
-//                LevelManager.Instance.LevelFinished(player);
+//                _isFinished = true;
+
+//                if (_finishEffect != null) _finishEffect.Play();
+//                if (_finishSound != null) _finishSound.Play();
+
+//                if (LevelManager.Instance != null)
+//                {
+//                    LevelManager.Instance.LevelFinished(player);
+//                }
 //            }
 //        }
 //    }
@@ -39,7 +57,6 @@ public class FinishPortal : MonoBehaviour
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
-
         if (_finishSound != null)
         {
             _finishSound.volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
@@ -53,11 +70,9 @@ public class FinishPortal : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-
             if (player != null)
             {
                 _isFinished = true;
-
                 if (_finishEffect != null) _finishEffect.Play();
                 if (_finishSound != null) _finishSound.Play();
 

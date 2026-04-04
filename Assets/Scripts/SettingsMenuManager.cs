@@ -67,6 +67,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class SettingsMenuManager : MonoBehaviour
 {
     [Header("Sliders")]
