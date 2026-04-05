@@ -198,10 +198,11 @@ public class MusicController : MonoBehaviour
 
     public void RestartMusic()
     {
-        StopAllCoroutines();
+        StopAllCoroutines(); 
         _audioSource.Stop();
         _audioSource.time = 0f;
-        _audioSource.volume = _userVolume;
+        _audioSource.volume = _userVolume; 
+        _audioSource.loop = true;         
         _audioSource.Play();
     }
 

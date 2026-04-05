@@ -560,16 +560,25 @@ public class DatabaseManager : MonoBehaviour
 
     public int GetTotalCoins() => _cachedWallet != null ? _cachedWallet.TotalCoins : 0;
 
+    //Старий 
+    //public int GetTotalCollectedStarCoins()
+    //{
+    //    int count = 0;
+    //    foreach (var l in _connection.Table<LevelStat>())
+    //    {
+    //        if (l.StarCoin1) count++;
+    //        if (l.StarCoin2) count++;
+    //        if (l.StarCoin3) count++;
+    //    }
+    //    return count;
+    //}
     public int GetTotalCollectedStarCoins()
     {
-        int count = 0;
-        foreach (var l in _connection.Table<LevelStat>())
-        {
-            if (l.StarCoin1) count++;
-            if (l.StarCoin2) count++;
-            if (l.StarCoin3) count++;
-        }
-        return count;
+        if (_connection == null) return 0;
+
+        string query = "SELECT COALESCE(SUM(StarCoin1 + StarCoin2 + StarCoin3), 0) FROM LevelStat";
+
+        return _connection.ExecuteScalar<int>(query);
     }
 
     public void SaveAllPendingDataToDisk()
@@ -613,8 +622,16 @@ public class DatabaseManager : MonoBehaviour
         s.IsCompleted = true;
         _connection.InsertOrReplace(s);
     }
+    //Старий 
+    //public void SaveProgress(string lvl, int att, float time)
+    //{
+    //    var s = GetLevelData(lvl) ?? new LevelStat { LevelID = lvl };
+    //    s.TotalAttempts += att;
+    //    s.TotalTime += time;
+    //    _connection.InsertOrReplace(s);
+    //}
 
-    public void SaveProgress(string lvl, int att, float time)
+    public void SaveProgress(string lvl, int att, double time)
     {
         var s = GetLevelData(lvl) ?? new LevelStat { LevelID = lvl };
         s.TotalAttempts += att;

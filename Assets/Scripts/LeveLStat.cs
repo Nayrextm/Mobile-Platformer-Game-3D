@@ -30,7 +30,7 @@ public class LevelStat
     public string LevelID { get; set; }
 
     public int TotalAttempts { get; set; }
-    public float TotalTime { get; set; }
+    public double TotalTime { get; set; }
 
     public bool StarCoin1 { get; set; }
     public bool StarCoin2 { get; set; }

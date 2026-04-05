@@ -106,6 +106,7 @@
 //        }
 //    }
 //}
+using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -150,9 +151,13 @@ public class LevelStatsDisplay : MonoBehaviour
 
         if (stats != null)
         {
-            float t = stats.TotalTime;
+            double t = stats.TotalTime;
 
-            if (_timeText) _timeText.text = $"TIME: {Mathf.Floor(t / 60):00}:{t % 60:00}";
+            if (_timeText)
+            {
+                TimeSpan time = TimeSpan.FromSeconds(t);
+                _timeText.text = $"TIME: {time.Minutes:D2}:{time.Seconds:D2}";
+            }
             if (_attemptsText) _attemptsText.text = $"ATTEMPTS: {stats.TotalAttempts}";
 
             SetCoinState(_coin1Image, stats.StarCoin1);
