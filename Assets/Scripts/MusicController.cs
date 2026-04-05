@@ -178,6 +178,8 @@ public class MusicController : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _userVolume = PlayerPrefs.GetFloat(VolumeKey, 1f);
         _audioSource.volume = _userVolume;
+
+        _audioSource.loop = true;
     }
 
     private void Start()

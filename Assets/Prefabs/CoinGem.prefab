@@ -214,11 +214,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _coinValue: 1
-  _rotateDuration: 2
-  _bobDuration: 1
-  _bobHeight: 0.5
+  _uniqueID: 0
+  _rotateSpeed: 150
+  _bobSpeed: 2
+  _bobHeight: 0.3
   _visualModel: {fileID: 5751951604556448030}
-  _pickupEffect: {fileID: 7972039928552337728, guid: b57599bafcae006479cc96a32a280c04, type: 3}
   _poolTag: Spark
   _pickupSound: {fileID: 8300000, guid: 2a71d8e8ea428e0409d3df636b9f0192, type: 3}
 --- !u!136 &440488185166791072

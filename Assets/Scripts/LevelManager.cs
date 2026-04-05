@@ -416,7 +416,7 @@ public class LevelManager : MonoBehaviour
         }
 
         SaveAttemptsToDB(false);
-        if (_musicController != null) _musicController.StopMusic();
+        //if (_musicController != null) _musicController.StopMusic();
 
         player.Win();
         if (_winScreen != null)

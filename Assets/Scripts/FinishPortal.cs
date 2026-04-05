@@ -76,6 +76,13 @@ public class FinishPortal : MonoBehaviour
                 if (_finishEffect != null) _finishEffect.Play();
                 if (_finishSound != null) _finishSound.Play();
 
+               
+                MusicController music = Object.FindAnyObjectByType<MusicController>();
+                if (music != null)
+                {
+                    music.FadeOutMusic(); 
+                }
+
                 if (LevelManager.Instance != null)
                 {
                     LevelManager.Instance.LevelFinished(player);

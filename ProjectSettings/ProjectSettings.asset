@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: Platformer Game 3D
+  companyName: Defaultcompany
+  productName: Bounce Dash
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
@@ -165,7 +165,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.DefaultCompany.PlatformerGame3D
+    Android: com.AskoldGames.BounceDash
     Standalone: com.DefaultCompany.Platformer-Game-3D
   buildNumber:
     Standalone: 0
