@@ -6,18 +6,15 @@ public class ModeSwitchPortal : MonoBehaviour
     [Tooltip("Постав галочку, якщо це вхід у 3D тунель. Прибери, якщо це вихід у 2D.")]
     [SerializeField] private bool _enterLaneMode = true;
 
-    
     private CameraFollow _cam;
 
     private void Awake()
     {
-       
         _cam = FindObjectOfType<CameraFollow>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-       
         if (other.CompareTag("Player"))
         {
             Rigidbody rb = other.GetComponent<Rigidbody>();
@@ -37,7 +34,6 @@ public class ModeSwitchPortal : MonoBehaviour
                     if (standardMove) laneMove.ForwardSpeed = standardMove.ForwardSpeed;
                 }
 
-              
                 if (_cam) _cam.Set3DView(true);
 
                
@@ -48,40 +44,36 @@ public class ModeSwitchPortal : MonoBehaviour
                     rb.velocity = fixedVel;
                 }
 
-                
                 other.transform.rotation = Quaternion.identity;
             }
             else
             {
-                
-
-               
                 if (laneMove) laneMove.enabled = false;
 
-               
                 if (rb)
                 {
+                    rb.interpolation = RigidbodyInterpolation.None;
+
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
                     rb.isKinematic = false;
+
+                    Vector3 flatPos = rb.position;
+                    flatPos.z = 0f;
+                    rb.position = flatPos;
+                    rb.rotation = Quaternion.identity;
+
+                    Physics.SyncTransforms(); 
+
+                    rb.interpolation = RigidbodyInterpolation.Interpolate;
                 }
 
-              
-                Vector3 flatPos = other.transform.position;
-                flatPos.z = 0f;
-                other.transform.position = flatPos;
-
-               
-                other.transform.rotation = Quaternion.identity;
-
-              
                 if (standardMove)
                 {
                     standardMove.enabled = true;
                     standardMove.SetMode("Cube");
                 }
 
-               
                 if (_cam) _cam.Set3DView(false);
             }
         }

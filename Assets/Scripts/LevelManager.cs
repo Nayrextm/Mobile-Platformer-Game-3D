@@ -344,6 +344,9 @@ public class LevelManager : MonoBehaviour
         else { Destroy(gameObject); return; }
 
         _currentLevelName = SceneManager.GetActiveScene().name;
+
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
     }
 
     private void Start()

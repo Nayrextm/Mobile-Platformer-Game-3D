@@ -293,23 +293,87 @@ public class LaneRunner3D : MonoBehaviour
         }
     }
 
+    //private void FixedUpdate()
+    //{
+    //    if (_isDead) return;
+
+    //    float currentYVelocity = _rb.velocity.y;
+    //    currentYVelocity -= _extraGravity * Time.fixedDeltaTime;
+
+    //    Vector3 currentPos = _rb.position;
+    //    float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
+
+    //    float currentZVelocity = (targetZ - currentPos.z) * 10f;
+
+    //    Vector3 targetVelocity = new Vector3(_forwardSpeed, currentYVelocity, currentZVelocity);
+
+    //    _rb.velocity = targetVelocity;
+    //}
+
     private void FixedUpdate()
     {
         if (_isDead) return;
 
-        float currentYVelocity = _rb.velocity.y;
-        currentYVelocity -= _extraGravity * Time.fixedDeltaTime;
+        float currentYVelocity = _rb.velocity.y - (_extraGravity * Time.fixedDeltaTime);
 
-        Vector3 currentPos = _rb.position;
-        float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
-
-        float currentZVelocity = (targetZ - currentPos.z) * 10f;
-
-        Vector3 targetVelocity = new Vector3(_forwardSpeed, currentYVelocity, currentZVelocity);
-
-        _rb.velocity = targetVelocity;
+        _rb.velocity = new Vector3(_forwardSpeed, currentYVelocity, 0f);
     }
 
+    //private void SwitchLane()
+    //{
+    //    Vector3 oldPosition = transform.position;
+
+    //    _sequenceIndex++;
+    //    if (_sequenceIndex >= _laneSequence.Length) _sequenceIndex = 0;
+
+    //    float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
+    //    Vector3 newPosition = new Vector3(oldPosition.x, oldPosition.y, targetZ);
+
+
+    //    if (_ghostPrefab != null)
+    //    {
+    //        GameObject ghost = null;
+    //        if (PoolManager.Instance != null)
+    //        {
+    //            ghost = PoolManager.Instance.SpawnFromPool(_ghostPoolTag, oldPosition, transform.rotation);
+    //        }
+    //        else
+    //        {
+    //            ghost = Instantiate(_ghostPrefab, oldPosition, transform.rotation);
+    //        }
+
+
+    //        if (ghost != null)
+    //        {
+    //            ghost.transform.localScale = transform.localScale;
+    //        }
+    //    }
+
+    //    transform.position = newPosition;
+    //    _rb.position = newPosition;
+
+    //    if (_teleportSound && _audioSource) _audioSource.PlayOneShot(_teleportSound);
+
+
+    //    if (_teleportEffect != null)
+    //    {
+    //        GameObject teleportObj = null;
+    //        if (PoolManager.Instance != null)
+    //        {
+    //            teleportObj = PoolManager.Instance.SpawnFromPool(_teleportPoolTag, transform.position, Quaternion.identity);
+    //        }
+    //        else
+    //        {
+    //            teleportObj = Instantiate(_teleportEffect, transform.position, Quaternion.identity);
+    //        }
+
+
+    //        if (teleportObj != null && teleportObj.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
+    //        {
+    //            ps.Emit(30);
+    //        }
+    //    }
+    //}
     private void SwitchLane()
     {
         Vector3 oldPosition = transform.position;
@@ -320,48 +384,36 @@ public class LaneRunner3D : MonoBehaviour
         float targetZ = _laneSequence[_sequenceIndex] * _laneDistance;
         Vector3 newPosition = new Vector3(oldPosition.x, oldPosition.y, targetZ);
 
-
         if (_ghostPrefab != null)
         {
-            GameObject ghost = null;
-            if (PoolManager.Instance != null)
-            {
-                ghost = PoolManager.Instance.SpawnFromPool(_ghostPoolTag, oldPosition, transform.rotation);
-            }
-            else
-            {
-                ghost = Instantiate(_ghostPrefab, oldPosition, transform.rotation);
-            }
+            GameObject ghost = (PoolManager.Instance != null)
+                ? PoolManager.Instance.SpawnFromPool(_ghostPoolTag, oldPosition, transform.rotation)
+                : Instantiate(_ghostPrefab, oldPosition, transform.rotation);
 
-
-            if (ghost != null)
-            {
-                ghost.transform.localScale = transform.localScale;
-            }
+            if (ghost != null) ghost.transform.localScale = transform.localScale;
         }
+
+        
+        _rb.interpolation = RigidbodyInterpolation.None; 
 
         transform.position = newPosition;
         _rb.position = newPosition;
+        Physics.SyncTransforms(); 
 
+        _rb.interpolation = RigidbodyInterpolation.Interpolate; 
+       
         if (_teleportSound && _audioSource) _audioSource.PlayOneShot(_teleportSound);
-
 
         if (_teleportEffect != null)
         {
-            GameObject teleportObj = null;
-            if (PoolManager.Instance != null)
-            {
-                teleportObj = PoolManager.Instance.SpawnFromPool(_teleportPoolTag, transform.position, Quaternion.identity);
-            }
-            else
-            {
-                teleportObj = Instantiate(_teleportEffect, transform.position, Quaternion.identity);
-            }
-
+            GameObject teleportObj = (PoolManager.Instance != null)
+                ? PoolManager.Instance.SpawnFromPool(_teleportPoolTag, newPosition, Quaternion.identity)
+                : Instantiate(_teleportEffect, newPosition, Quaternion.identity);
 
             if (teleportObj != null && teleportObj.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
             {
-                ps.Emit(30);
+                
+                ps.Emit(10);
             }
         }
     }

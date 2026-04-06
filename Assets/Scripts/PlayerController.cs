@@ -732,7 +732,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_isDead) return;
 
-        GroundCheck();
+        //GroundCheck();
         HandleInput();
         UpdateTimers();
         ProcessJumpLogic();
@@ -820,6 +820,7 @@ public class PlayerController : MonoBehaviour
 
         if (!_rb.isKinematic)
         {
+            GroundCheck();
             ProcessStandardPhysics();
         }
     }
@@ -936,7 +937,7 @@ public class PlayerController : MonoBehaviour
 
 
     private void OnCollisionEnter(Collision collision) { ProcessPhysicalHit(collision); }
-    private void OnCollisionStay(Collision collision) { ProcessPhysicalHit(collision); }
+    //private void OnCollisionStay(Collision collision) { ProcessPhysicalHit(collision); }
 
     private void ProcessPhysicalHit(Collision collision)
     {

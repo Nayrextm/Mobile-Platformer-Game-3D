@@ -49,7 +49,7 @@ using UnityEngine;
 public class FinishPortal : MonoBehaviour
 {
     [Header("≈фекти")]
-    [SerializeField] private ParticleSystem _finishEffect;
+    //[SerializeField] private ParticleSystem _finishEffect;
     [SerializeField] private AudioSource _finishSound;
 
     private bool _isFinished = false;
@@ -73,7 +73,7 @@ public class FinishPortal : MonoBehaviour
             if (player != null)
             {
                 _isFinished = true;
-                if (_finishEffect != null) _finishEffect.Play();
+                //if (_finishEffect != null) _finishEffect.Play();
                 if (_finishSound != null) _finishSound.Play();
 
                

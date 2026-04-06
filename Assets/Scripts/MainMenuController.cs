@@ -128,7 +128,7 @@ public class MainMenuController : MonoBehaviour
 
     public void OpenSettings()
     {
-        PlayClickSound();
+        //PlayClickSound();
 
         if (_mainMenuPanel != null) _mainMenuPanel.SetActive(false);
         if (_settingsPanelFader != null) _settingsPanelFader.Show();
@@ -136,7 +136,7 @@ public class MainMenuController : MonoBehaviour
 
     public void CloseSettings()
     {
-        PlayClickSound();
+        //PlayClickSound();
 
         
         UpdateSfxVolumeCache();
