@@ -6112,6 +6112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 220d166b1298196458da76daa87da360, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  totalCoinsOnLevel: 33
   coinText: {fileID: 1857824950}
 --- !u!65 &398294310
 BoxCollider:
@@ -22220,7 +22221,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Coins  x
+  m_text: 'Coins  :'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}

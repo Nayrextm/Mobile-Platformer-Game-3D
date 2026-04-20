@@ -190,7 +190,7 @@ public class CoinPickup : MonoBehaviour
             DatabaseManager.Instance.CollectCoinImmediate(_globalID, _coinValue);
         }
 
-        if (CoinUI.Instance != null) CoinUI.Instance.UpdateDisplay();
+        if (CoinUI.Instance != null) CoinUI.Instance.AddCoinAndDisplay();
 
         if (PoolManager.Instance != null)
         {

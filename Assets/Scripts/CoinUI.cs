@@ -1,12 +1,19 @@
 using UnityEngine;
-using TMPro; // Потрібно для TextMeshPro
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class CoinUI : MonoBehaviour
 {
-    public static CoinUI Instance; // Сінґлтон для легкого доступу
+    public static CoinUI Instance;
+
+    [Header("Налаштування рівня")]
+    [Tooltip("Вкажіть, скільки всього монет розставлено на цій сцені")]
+    public int totalCoinsOnLevel = 33;
 
     [Header("Посилання на текст")]
     public TextMeshProUGUI coinText;
+
+    private int _collectedInThisLevel = 0;
 
     void Awake()
     {
@@ -15,22 +22,26 @@ public class CoinUI : MonoBehaviour
 
     void Start()
     {
-        // При старті сцени одразу показуємо актуальну суму
+        if (DatabaseManager.Instance != null)
+        {
+            string currentScene = SceneManager.GetActiveScene().name;
+            _collectedInThisLevel = DatabaseManager.Instance.GetCollectedCoinsCount(currentScene);
+        }
+
+        UpdateDisplay();
+    }
+
+    public void AddCoinAndDisplay()
+    {
+        _collectedInThisLevel++;
         UpdateDisplay();
     }
 
     public void UpdateDisplay()
     {
-        if (DatabaseManager.Instance != null)
+        if (coinText != null)
         {
-            // Беремо дані з бази (метод GetTotalCoins вже налаштований у вас на CollectiblesStat)
-            int totalCoins = DatabaseManager.Instance.GetTotalCoins();
-
-            // Оновлюємо текст
-            if (coinText != null)
-            {
-                coinText.text = totalCoins.ToString();
-            }
+            coinText.text = $"{_collectedInThisLevel}/{totalCoinsOnLevel}";
         }
     }
 }

@@ -574,6 +574,22 @@ public class DatabaseManager : MonoBehaviour
 
     public int GetTotalCoins() => _cachedWallet != null ? _cachedWallet.TotalCoins : 0;
 
+    public int GetCollectedCoinsCount(string levelName)
+    {
+        int count = 0;
+        string prefix = levelName + "_";
+
+        foreach (string globalId in _collectedCoinsCache)
+        {
+            if (globalId.StartsWith(prefix))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     //Старий 
     //public int GetTotalCollectedStarCoins()
     //{

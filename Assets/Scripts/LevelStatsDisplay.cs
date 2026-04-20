@@ -203,4 +203,10 @@ public class LevelStatsDisplay : MonoBehaviour
             coinImg.color = Color.white;
         }
     }
+
+    public void SetLevelID(string newLevelID)
+    {
+        _levelID = newLevelID;
+        UpdateStats(); 
+    }
 }
