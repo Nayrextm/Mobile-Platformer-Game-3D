@@ -1,8 +1,15 @@
+//using SQLite4Unity3d;
+
+//public class CoinState
+//{
+    
+//    [PrimaryKey]
+//    public int UniqueID { get; set; }
+//}
 using SQLite4Unity3d;
 
 public class CoinState
 {
-    
     [PrimaryKey]
-    public int UniqueID { get; set; }
+    public string GlobalID { get; set; }
 }

@@ -463,8 +463,9 @@ public class DatabaseManager : MonoBehaviour
     private SQLiteConnection _connection;
     private readonly string _dbName = "GeoDashStats.db";
 
-    
-    private HashSet<int> _collectedCoinsCache = new HashSet<int>();
+
+    //private HashSet<int> _collectedCoinsCache = new HashSet<int>();
+    private HashSet<string> _collectedCoinsCache = new HashSet<string>();
     private CollectiblesStat _cachedWallet;
     private List<CoinState> _coinsToSaveToDisk = new List<CoinState>();
 
@@ -511,7 +512,7 @@ public class DatabaseManager : MonoBehaviour
         _collectedCoinsCache.Clear();
         foreach (var c in _connection.Table<CoinState>())
         {
-            _collectedCoinsCache.Add(c.UniqueID);
+            _collectedCoinsCache.Add(c.GlobalID);
         }
     }
 
@@ -541,19 +542,32 @@ public class DatabaseManager : MonoBehaviour
         Debug.Log(" Прогрес успішно скинуто в БД та RAM-кеші.");
     }
 
-    
 
-    public bool IsCoinAlreadyCollectedInDB(int id) => _collectedCoinsCache.Contains(id);
 
-    public void CollectCoinImmediate(int id, int value)
+    //5.0 update - public bool IsCoinAlreadyCollectedInDB(int id) => _collectedCoinsCache.Contains(id);
+
+    //public void CollectCoinImmediate(int id, int value)
+    //{
+    //    if (!_collectedCoinsCache.Contains(id))
+    //    {
+    //        _collectedCoinsCache.Add(id);
+    //        _coinsToSaveToDisk.Add(new CoinState { UniqueID = id });
+    //        _cachedWallet.TotalCoins += value;
+
+
+    //        if (_coinsToSaveToDisk.Count >= 4) SaveAllPendingDataToDisk();
+    //    }
+    //}
+    public bool IsCoinAlreadyCollectedInDB(string globalId) => _collectedCoinsCache.Contains(globalId);
+
+    public void CollectCoinImmediate(string globalId, int value)
     {
-        if (!_collectedCoinsCache.Contains(id))
+        if (!_collectedCoinsCache.Contains(globalId))
         {
-            _collectedCoinsCache.Add(id);
-            _coinsToSaveToDisk.Add(new CoinState { UniqueID = id });
+            _collectedCoinsCache.Add(globalId);
+            _coinsToSaveToDisk.Add(new CoinState { GlobalID = globalId });
             _cachedWallet.TotalCoins += value;
 
-           
             if (_coinsToSaveToDisk.Count >= 4) SaveAllPendingDataToDisk();
         }
     }

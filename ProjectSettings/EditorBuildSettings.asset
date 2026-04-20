@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Synthwave.unity
     guid: fcc7af5e22f066d41b58cc9d2d0cc3d6
+  - enabled: 1
+    path: Assets/Scenes/Space.unity
+    guid: 0f5c0c532ee07bb49a6ba23b3adc6b2d
   m_configObjects: {}
