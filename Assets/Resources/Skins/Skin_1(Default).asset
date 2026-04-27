@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bb62eac920fef041adeeeab71f1a84e, type: 3}
+  m_Name: Skin_1(Default)
+  m_EditorClassIdentifier: 
+  skinID: 0
+  skinDisplayName: Default Ball
+  visualPrefab: {fileID: 113879921353642809, guid: 6c44673b9b78e594ba8902fb1a5f7887, type: 3}

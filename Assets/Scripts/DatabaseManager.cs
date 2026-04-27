@@ -497,7 +497,52 @@ public class DatabaseManager : MonoBehaviour
         _connection.CreateTable<CollectiblesStat>();
         _connection.CreateTable<CoinState>();
 
+        _connection.CreateTable<UserSettings>();
+
         LoadDataToCache();
+    }
+
+
+    public int GetSelectedSkinID()
+    {
+        if (_connection == null) return 0;
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1);
+        return settings != null ? settings.SelectedSkinID : 0;
+    }
+
+    public void SaveSelectedSkinID(int skinID)
+    {
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1) ?? new UserSettings { Id = 1 };
+        settings.SelectedSkinID = skinID;
+        _connection.InsertOrReplace(settings);
+    }
+
+    public int GetSelectedColorIndex()
+    {
+        if (_connection == null) return 0;
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1);
+        return settings != null ? settings.SelectedColorIndex : 0;
+    }
+
+    public void SaveSelectedColorIndex(int colorIndex)
+    {
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1) ?? new UserSettings { Id = 1 };
+        settings.SelectedColorIndex = colorIndex;
+        _connection.InsertOrReplace(settings);
+    }
+
+    public int GetSelectedTrailColorIndex()
+    {
+        if (_connection == null) return 0;
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1);
+        return settings != null ? settings.SelectedTrailColorIndex : 0;
+    }
+
+    public void SaveSelectedTrailColorIndex(int colorIndex)
+    {
+        var settings = _connection.Table<UserSettings>().FirstOrDefault(x => x.Id == 1) ?? new UserSettings { Id = 1 };
+        settings.SelectedTrailColorIndex = colorIndex;
+        _connection.InsertOrReplace(settings);
     }
 
     private void LoadDataToCache()
@@ -668,4 +713,13 @@ public class DatabaseManager : MonoBehaviour
         s.TotalTime += time;
         _connection.InsertOrReplace(s);
     }
+}
+
+public class UserSettings
+{
+    [SQLite4Unity3d.PrimaryKey]
+    public int Id { get; set; }
+    public int SelectedSkinID { get; set; }
+    public int SelectedColorIndex { get; set; }
+    public int SelectedTrailColorIndex { get; set; }
 }
