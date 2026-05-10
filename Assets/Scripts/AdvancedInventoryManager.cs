@@ -66,7 +66,7 @@ public class AdvancedInventoryManager : MonoBehaviour
         }
 
        
-        for (int i = 0; i < _colorDatabase.availableColors.Count; i++)
+        for (int i = 0; i < _colorDatabase.Count; i++)
         {
             int index = i;
             Color color = _colorDatabase.GetColorByIndex(index);
@@ -77,7 +77,7 @@ public class AdvancedInventoryManager : MonoBehaviour
         }
 
         
-        for (int i = 0; i < _colorDatabase.availableColors.Count; i++)
+        for (int i = 0; i < _colorDatabase.Count; i++)
         {
             int index = i;
             Color color = _colorDatabase.GetColorByIndex(index);
@@ -140,7 +140,31 @@ public class AdvancedInventoryManager : MonoBehaviour
             activeSlots[i].SetState(isEquipped, isSelected);
         }
 
-        if (_previewingID == equippedID)
+        string category = "";
+        if (_currentTab == TabType.Forms)
+        {
+            category = "Skin";
+        }
+        else
+        {
+            // ßêùî öå PlayerColor ÀÁÎ TrailColor - øóêàºìî â áàç³ ñï³ëüíèé êëþ÷ "Color"
+            category = "Color";
+        }
+
+
+        bool isUnlocked = true; 
+        if (DatabaseManager.Instance != null)
+        {
+            isUnlocked = DatabaseManager.Instance.IsItemUnlocked(category, _previewingID);
+        }
+
+        
+        if (!isUnlocked)
+        {
+            _equipButtonText.text = "LOCKED";
+            _equipButton.interactable = false;
+        }
+        else if (_previewingID == equippedID)
         {
             _equipButtonText.text = "EQUIPPED";
             _equipButton.interactable = false;

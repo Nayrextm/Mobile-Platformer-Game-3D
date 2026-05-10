@@ -72,7 +72,7 @@ public class SkinSelectorMenu : MonoBehaviour
     private int GetMaxCount()
     {
         if (_mode == SelectorMode.Skin) return _skinDatabase != null ? _skinDatabase.allSkins.Count : 0;
-        return _colorDatabase != null ? _colorDatabase.availableColors.Count : 0;
+        return _colorDatabase != null ? _colorDatabase.Count : 0;
     }
 
     private void UpdateUI()

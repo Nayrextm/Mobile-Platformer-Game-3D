@@ -499,6 +499,8 @@ public class DatabaseManager : MonoBehaviour
 
         _connection.CreateTable<UserSettings>();
 
+        _connection.CreateTable<UnlockedItem>();
+
         LoadDataToCache();
     }
 
@@ -575,6 +577,17 @@ public class DatabaseManager : MonoBehaviour
         _connection.DeleteAll<LevelStat>();
         _connection.DeleteAll<CoinState>();
 
+        _connection.DeleteAll<UnlockedItem>();
+
+        _connection.DeleteAll<UserSettings>();
+        _connection.Insert(new UserSettings
+        {
+            Id = 1,
+            SelectedSkinID = 0,
+            SelectedColorIndex = 0,
+            SelectedTrailColorIndex = 0
+        });
+
         if (_cachedWallet != null)
         {
             _cachedWallet.TotalCoins = 0;
@@ -584,7 +597,7 @@ public class DatabaseManager : MonoBehaviour
         _collectedCoinsCache.Clear();
         _coinsToSaveToDisk.Clear();
 
-        Debug.Log(" Прогрес успішно скинуто в БД та RAM-кеші.");
+        Debug.Log("Прогрес, покупки та інвентар успішно скинуто до заводських налаштувань!");
     }
 
 
@@ -633,6 +646,33 @@ public class DatabaseManager : MonoBehaviour
         }
 
         return count;
+    }
+
+    public bool IsItemUnlocked(string category, int id)
+    {
+        if (id == 0) return true; 
+
+        return _connection.Table<UnlockedItem>()
+                          .Count(x => x.ItemCategory == category && x.ItemID == id) > 0;
+    }
+
+    public bool TrySpendCoins(int amount)
+    {
+        if (_cachedWallet != null && _cachedWallet.TotalCoins >= amount)
+        {
+            _cachedWallet.TotalCoins -= amount;
+            SaveAllPendingDataToDisk(); 
+            return true;
+        }
+        return false;
+    }
+
+    public void UnlockItem(string category, int id)
+    {
+        if (!IsItemUnlocked(category, id))
+        {
+            _connection.Insert(new UnlockedItem { ItemCategory = category, ItemID = id });
+        }
     }
 
     //Старий 
@@ -722,4 +762,12 @@ public class UserSettings
     public int SelectedSkinID { get; set; }
     public int SelectedColorIndex { get; set; }
     public int SelectedTrailColorIndex { get; set; }
+}
+
+public class UnlockedItem
+{
+    [SQLite4Unity3d.PrimaryKey, SQLite4Unity3d.AutoIncrement]
+    public int Id { get; set; }
+    public string ItemCategory { get; set; } // Наприклад: "TrailColor", "Skin", "PlayerColor"
+    public int ItemID { get; set; }          // Індекс або ID купленого предмета
 }
