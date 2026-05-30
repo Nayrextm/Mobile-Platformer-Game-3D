@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.016507141, g: 0.012697271, b: 0.03773582, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
@@ -12126,7 +12126,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _transitionType: 0
-  _defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  _defaultParticleColor: {r: 1, g: 1, b: 1, a: 1}
+  _enableSkyboxChange: 1
+  _skyColorPropertyName: _SkyColor
+  _defaultSkyboxColor: {r: 0, g: 0, b: 0, a: 1}
+  _enableFogChange: 1
+  _defaultFogColor: {r: 0.015686275, g: 0.011764706, b: 0.039215688, a: 1}
 --- !u!1001 &699633888
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23879,7 +23884,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 41.749756, y: -20.75}
+  m_AnchoredPosition: {x: 41.749878, y: -20.75}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1857824950
@@ -27024,8 +27029,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6bac01a757826a42b0dee108f3861d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _targetColor: {r: 0.6872595, g: 0, b: 0.72327036, a: 1}
   _transitionDuration: 1
+  _targetParticleColor: {r: 0, g: 1, b: 1, a: 1}
+  _targetSkyboxColor: {r: 1, g: 0, b: 0.039513588, a: 1}
+  _targetFogColor: {r: 1, g: 0.7392224, b: 0, a: 1}
 --- !u!1 &2143303515
 GameObject:
   m_ObjectHideFlags: 0

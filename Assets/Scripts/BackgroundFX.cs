@@ -4,24 +4,37 @@ using System.Collections;
 [RequireComponent(typeof(ParticleSystem))]
 public class BackgroundFX : MonoBehaviour
 {
-    public enum TransitionType { VertexColorWave, GlobalMaterialFlash }
+    private enum TransitionType { VertexColorWave, GlobalMaterialFlash }
 
     public static BackgroundFX Instance { get; private set; }
 
-    [Header("Налаштування Режиму")]
-    [Tooltip("Vertex Color Wave — колір змінюється хвилею.\nGlobal Material Flash — весь фон змінюється синхронно.")]
+    [Header("--- НАЛАШТУВАННЯ ЧАСТИНОК ---")]
     [SerializeField] private TransitionType _transitionType = TransitionType.VertexColorWave;
+    [SerializeField] private Color _defaultParticleColor = Color.white;
 
-    [Header("Початковий стан фону")]
-    [Tooltip("Колір фону, який буде увімкнено на самому початку рівня та після смерті")]
-    [SerializeField] private Color _defaultColor = Color.white;
+    [Header("--- НАЛАШТУВАННЯ СКАЙБОКСУ (НЕБА) ---")]
+    [SerializeField] private bool _enableSkyboxChange = true;
+    [SerializeField] private string _skyColorPropertyName = "_SkyColor";
+    [ColorUsage(true, true)][SerializeField] private Color _defaultSkyboxColor = Color.black;
 
+    [Header("--- НАЛАШТУВАННЯ ТУМАНУ ---")]
+    [Tooltip("Чи хочемо ми змінювати колір глобального туману на цьому рівні?")]
+    [SerializeField] private bool _enableFogChange = true;
+
+    [Tooltip("Початковий колір туману при старті рівня та після смерті")]
+    [SerializeField] private Color _defaultFogColor = Color.gray;
+
+    // Компоненти частинок
     private ParticleSystem _particleSystem;
     private ParticleSystem.MainModule _mainModule;
     private ParticleSystemRenderer _particleRenderer;
     private Material _particleMaterial;
 
-    private Coroutine _colorTransitionCoroutine;
+    // Компоненти скайбоксу
+    private Material _skyboxInstance;
+    private int _skyColorPropertyID;
+
+    private Coroutine _environmentTransitionCoroutine;
 
     private void Awake()
     {
@@ -31,6 +44,14 @@ public class BackgroundFX : MonoBehaviour
         _particleSystem = GetComponent<ParticleSystem>();
         _mainModule = _particleSystem.main;
         _particleRenderer = GetComponent<ParticleSystemRenderer>();
+
+        _skyColorPropertyID = Shader.PropertyToID(_skyColorPropertyName);
+
+        if (_enableSkyboxChange && RenderSettings.skybox != null)
+        {
+            _skyboxInstance = new Material(RenderSettings.skybox);
+            RenderSettings.skybox = _skyboxInstance;
+        }
     }
 
     private void Start()
@@ -51,57 +72,86 @@ public class BackgroundFX : MonoBehaviour
         }
     }
 
-    public void ChangeColorSmoothly(Color targetColor, float duration)
+    /// <summary>
+    /// Головний метод зміни всього оточення (викликається з тригерів)
+    /// </summary>
+    public void ChangeEnvironmentSmoothly(Color targetParticle, Color targetSkybox, Color targetFog, float duration)
     {
-        if (_colorTransitionCoroutine != null) StopCoroutine(_colorTransitionCoroutine);
-        _colorTransitionCoroutine = StartCoroutine(ColorLerpCoroutine(targetColor, duration));
+        if (_environmentTransitionCoroutine != null) StopCoroutine(_environmentTransitionCoroutine);
+        _environmentTransitionCoroutine = StartCoroutine(EnvironmentLerpCoroutine(targetParticle, targetSkybox, targetFog, duration));
     }
 
+    /// <summary>
+    /// Автоматичне скидання до дефолтного стану при рестарті
+    /// </summary>
     public void ResetToDefault()
     {
-        if (_colorTransitionCoroutine != null) StopCoroutine(_colorTransitionCoroutine);
+        if (_environmentTransitionCoroutine != null) StopCoroutine(_environmentTransitionCoroutine);
 
-        Color colorWithAlpha = _defaultColor;
-        colorWithAlpha.a = 0.6f;
+        // 1. Скидання частинок
+        Color particleColorWithAlpha = _defaultParticleColor;
+        particleColorWithAlpha.a = 0.6f;
+        _mainModule.startColor = particleColorWithAlpha;
+        if (_particleMaterial != null) _particleMaterial.color = particleColorWithAlpha;
 
-        _mainModule.startColor = colorWithAlpha;
-
-        if (_particleMaterial != null)
+        // 2. Скидання скайбоксу
+        if (_enableSkyboxChange && _skyboxInstance != null)
         {
-            _particleMaterial.color = colorWithAlpha;
+            _skyboxInstance.SetColor(_skyColorPropertyID, _defaultSkyboxColor);
+        }
+
+        // 3. Скидання туману
+        if (_enableFogChange)
+        {
+            RenderSettings.fogColor = _defaultFogColor;
         }
     }
 
-    private IEnumerator ColorLerpCoroutine(Color targetColor, float duration)
+    private IEnumerator EnvironmentLerpCoroutine(Color targetParticle, Color targetSkybox, Color targetFog, float duration)
     {
-        targetColor.a = 0.6f;
+        targetParticle.a = 0.6f;
         float elapsed = 0f;
 
-        switch (_transitionType)
+        // Кешуємо прапорці для чищення коду від спагетті
+        bool isWave = (_transitionType == TransitionType.VertexColorWave);
+        bool hasSkybox = (_enableSkyboxChange && _skyboxInstance != null);
+        bool hasFog = _enableFogChange;
+
+        if (!isWave && _particleMaterial == null) _particleMaterial = _particleRenderer.material;
+
+        // Запам'ятовуємо стартові кольори
+        Color startSkyColor = hasSkybox ? _skyboxInstance.GetColor(_skyColorPropertyID) : Color.black;
+        Color startParticleColor = isWave ? _mainModule.startColor.color : _particleMaterial.color;
+        Color startFogColor = hasFog ? RenderSettings.fogColor : Color.gray;
+
+        // Цикл плавної зміни
+        while (elapsed < duration)
         {
-            case TransitionType.VertexColorWave:
-                Color startColorWave = _mainModule.startColor.color;
-                while (elapsed < duration)
-                {
-                    elapsed += Time.deltaTime;
-                    _mainModule.startColor = Color.Lerp(startColorWave, targetColor, elapsed / duration);
-                    yield return null;
-                }
-                _mainModule.startColor = targetColor;
-                break;
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
 
-            case TransitionType.GlobalMaterialFlash:
-                if (_particleMaterial == null) _particleMaterial = _particleRenderer.material;
+            // Лерп Неба
+            if (hasSkybox)
+                _skyboxInstance.SetColor(_skyColorPropertyID, Color.Lerp(startSkyColor, targetSkybox, t));
 
-                Color startColorFlash = _particleMaterial.color;
-                while (elapsed < duration)
-                {
-                    elapsed += Time.deltaTime;
-                    _particleMaterial.color = Color.Lerp(startColorFlash, targetColor, elapsed / duration);
-                    yield return null;
-                }
-                _particleMaterial.color = targetColor;
-                break;
+            // Лерп Туману
+            if (hasFog)
+                RenderSettings.fogColor = Color.Lerp(startFogColor, targetFog, t);
+
+            // Лерп Частинок
+            if (isWave)
+                _mainModule.startColor = Color.Lerp(startParticleColor, targetParticle, t);
+            else
+                _particleMaterial.color = Color.Lerp(startParticleColor, targetParticle, t);
+
+            yield return null;
         }
+
+        // Залізобетонна фіксація фінальних кольорів після завершення циклу
+        if (hasSkybox) _skyboxInstance.SetColor(_skyColorPropertyID, targetSkybox);
+        if (hasFog) RenderSettings.fogColor = targetFog;
+
+        if (isWave) _mainModule.startColor = targetParticle;
+        else _particleMaterial.color = targetParticle;
     }
 }

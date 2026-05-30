@@ -4,11 +4,19 @@ using UnityEngine;
 public class ParticleColorTrigger : MonoBehaviour
 {
     [Header("Налаштування Порталу/Зони")]
-    [Tooltip("У який колір перефарбувати фон?")]
-    [SerializeField] private Color _targetColor = Color.cyan;
-
-    [Tooltip("Як швидко змінити колір (в секундах)?")]
+    [Tooltip("Як швидко змінити колір усього оточення (в секундах)?")]
     [SerializeField] private float _transitionDuration = 1.0f;
+
+    [Header("Кольори для активації")]
+    [Tooltip("Новий колір для квадратиків (частинок)")]
+    [SerializeField] private Color _targetParticleColor = Color.cyan;
+
+    [Tooltip("Новий колір для Скайбоксу (неба)")]
+    [ColorUsage(true, true)]
+    [SerializeField] private Color _targetSkyboxColor = Color.blue;
+
+    [Tooltip("Новий колір для глобального туману")]
+    [SerializeField] private Color _targetFogColor = Color.gray;
 
     private void Awake()
     {
@@ -21,7 +29,13 @@ public class ParticleColorTrigger : MonoBehaviour
         {
             if (BackgroundFX.Instance != null)
             {
-                BackgroundFX.Instance.ChangeColorSmoothly(_targetColor, _transitionDuration);
+                // Передаємо всі три кольори в наш універсальний менеджер
+                BackgroundFX.Instance.ChangeEnvironmentSmoothly(
+                    _targetParticleColor,
+                    _targetSkyboxColor,
+                    _targetFogColor,
+                    _transitionDuration
+                );
             }
         }
     }
