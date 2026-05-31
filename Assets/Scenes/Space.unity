@@ -12132,6 +12132,10 @@ MonoBehaviour:
   _defaultSkyboxColor: {r: 0, g: 0, b: 0, a: 1}
   _enableFogChange: 1
   _defaultFogColor: {r: 0.015686275, g: 0.011764706, b: 0.039215688, a: 1}
+  _enablePlatformChange: 1
+  _platformMaterial: {fileID: 2100000, guid: f42d7ba2d7033274080d0fc49ed0fdb7, type: 2}
+  _platformColorPropertyName: _BaseColor
+  _defaultPlatformColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &699633888
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27033,6 +27037,7 @@ MonoBehaviour:
   _targetParticleColor: {r: 0, g: 1, b: 1, a: 1}
   _targetSkyboxColor: {r: 1, g: 0, b: 0.039513588, a: 1}
   _targetFogColor: {r: 1, g: 0.7392224, b: 0, a: 1}
+  _targetPlatformColor: {r: 0.5876741, g: 0, b: 0.8867924, a: 1}
 --- !u!1 &2143303515
 GameObject:
   m_ObjectHideFlags: 0

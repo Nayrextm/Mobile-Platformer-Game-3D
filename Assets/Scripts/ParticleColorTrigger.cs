@@ -18,6 +18,9 @@ public class ParticleColorTrigger : MonoBehaviour
     [Tooltip("Новий колір для глобального туману")]
     [SerializeField] private Color _targetFogColor = Color.gray;
 
+    [Tooltip("Новий колір для матеріалу платформ")]
+    [SerializeField] private Color _targetPlatformColor = Color.white;
+
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
@@ -29,11 +32,11 @@ public class ParticleColorTrigger : MonoBehaviour
         {
             if (BackgroundFX.Instance != null)
             {
-                // Передаємо всі три кольори в наш універсальний менеджер
                 BackgroundFX.Instance.ChangeEnvironmentSmoothly(
                     _targetParticleColor,
                     _targetSkyboxColor,
                     _targetFogColor,
+                    _targetPlatformColor, // Новий параметр
                     _transitionDuration
                 );
             }
