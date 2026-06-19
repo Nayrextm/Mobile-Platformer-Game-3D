@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_PortalTunnel
-  m_Shader: {fileID: -6465566751694194690, guid: daf2ad1240e14234bab4e77633ccd9f1, type: 3}
+  m_Name: MatDither_PortalTunnel
+  m_Shader: {fileID: -6465566751694194690, guid: c3071de43c47dbf4897178e22c6b9258, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
