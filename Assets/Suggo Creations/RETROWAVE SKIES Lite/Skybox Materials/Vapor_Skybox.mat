@@ -135,7 +135,7 @@ Material:
     - _StencilWriteMaskMV: 40
     - _SunMaskSize: -2.64
     - _SunMaskSpherize: 32
-    - _SunSize: 0.507
+    - _SunSize: 0
     - _SurfaceType: 0
     - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
@@ -154,7 +154,7 @@ Material:
     - _Cubemap_Color: {r: 1, g: 1, b: 1, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _HorizonColor: {r: 0.28930807, g: 0.28930807, b: 0.28930807, a: 1}
+    - _HorizonColor: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 1}
     - _LinesColor: {r: 0, g: 1, b: 0.50381684, a: 1}
     - _SkyColor: {r: 0, g: 0, b: 0, a: 1}
     - _StarColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 0}
