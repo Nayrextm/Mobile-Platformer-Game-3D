@@ -1,0 +1,314 @@
+fileFormatVersion: 2
+guid: 887a68e52ded6174c962b3531e04b932
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_1
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 277
+        width: 351
+        height: 71
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3feb639c0f5741c43b50f4106c3535fc
+      internalID: 36233198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_15
+      rect:
+        serializedVersion: 2
+        x: 436
+        y: 277
+        width: 351
+        height: 100
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dc188b7cb5bb8d439fd228ba8804252
+      internalID: 2040924588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_17
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 15
+        width: 351
+        height: 257
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03ed437b5f3e31c46b7772c464adbd22
+      internalID: -1872334003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_20
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 231
+        width: 155
+        height: 35
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e19c57181dbeb34439a9941eb69328f6
+      internalID: -688609421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_26
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 23
+        width: 190
+        height: 232
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97a743c895ff72a4eac9ea6681a3d6e2
+      internalID: 943892962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Panels&Visuals_33
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 24
+        width: 153
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 626213da51515104cb9a29c61f3ba275
+      internalID: 892413398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Frame UI Panels&Visuals_0: 1466495001
+      Frame UI Panels&Visuals_1: 36233198
+      Frame UI Panels&Visuals_10: -2120558954
+      Frame UI Panels&Visuals_11: -1785254993
+      Frame UI Panels&Visuals_12: -466189944
+      Frame UI Panels&Visuals_13: 924456342
+      Frame UI Panels&Visuals_14: -784174761
+      Frame UI Panels&Visuals_15: 2040924588
+      Frame UI Panels&Visuals_16: -235780467
+      Frame UI Panels&Visuals_17: -1872334003
+      Frame UI Panels&Visuals_18: -562012053
+      Frame UI Panels&Visuals_19: -1748414721
+      Frame UI Panels&Visuals_2: -829607887
+      Frame UI Panels&Visuals_20: -688609421
+      Frame UI Panels&Visuals_21: 1769618759
+      Frame UI Panels&Visuals_22: 436739009
+      Frame UI Panels&Visuals_23: -808005219
+      Frame UI Panels&Visuals_24: -1040933068
+      Frame UI Panels&Visuals_25: 1502012100
+      Frame UI Panels&Visuals_26: 943892962
+      Frame UI Panels&Visuals_27: 1202471564
+      Frame UI Panels&Visuals_28: 526806476
+      Frame UI Panels&Visuals_29: 122979295
+      Frame UI Panels&Visuals_3: -1759370818
+      Frame UI Panels&Visuals_30: 2037094002
+      Frame UI Panels&Visuals_31: 551226969
+      Frame UI Panels&Visuals_32: -2105694658
+      Frame UI Panels&Visuals_33: 892413398
+      Frame UI Panels&Visuals_34: -1543558875
+      Frame UI Panels&Visuals_4: 824092923
+      Frame UI Panels&Visuals_5: 1968909873
+      Frame UI Panels&Visuals_6: 1966100480
+      Frame UI Panels&Visuals_7: -1425668363
+      Frame UI Panels&Visuals_8: 802798693
+      Frame UI Panels&Visuals_9: -246693315
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,582 @@
+fileFormatVersion: 2
+guid: ecf126ae58f7f8c4bbaa63050773b778
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_0
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 297
+        width: 279
+        height: 104
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f760f4c0f41c494cba3835cd2fd9abb
+      internalID: 1301043324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_3
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 297
+        width: 103
+        height: 104
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1e1e7c40f51be364cb7f3eaf3015b185
+      internalID: -887461827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_6
+      rect:
+        serializedVersion: 2
+        x: 427
+        y: 352
+        width: 36
+        height: 49
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 76af0175082fb4547837561409ebc34a
+      internalID: -2117295352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_7
+      rect:
+        serializedVersion: 2
+        x: 507
+        y: 308
+        width: 153
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa604e1a8f2adaa4bac4a017cd8dbe07
+      internalID: -944470600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_10
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 297
+        width: 26
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cb011edeb5730ca4b81611fdf5117e0d
+      internalID: -93328833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_12
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 244
+        width: 26
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a9da32185c8a2a84babe88269fd24412
+      internalID: -1105718023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_14
+      rect:
+        serializedVersion: 2
+        x: 343
+        y: 255
+        width: 19
+        height: 5
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5fafbd9d52f46c748ac1bce571a48978
+      internalID: -1710086293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_19
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 78
+        width: 265
+        height: 91
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a18a38629f753b342b30df679a3b01a5
+      internalID: 687455696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_20
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 195
+        width: 265
+        height: 90
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8736cfc77c43e0f498c85c4ef111711d
+      internalID: -503641971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_21
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 203
+        width: 258
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2460c9b218eacf54f9175d3ee9431fcb
+      internalID: 619114654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_25
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 196
+        width: 89
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 62d82abfad86bdb478c132e4cb71f676
+      internalID: -784561413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_26
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 91
+        width: 77
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43e95eb141ee2ef41bcee8069e68622b
+      internalID: 743415332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_29
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 91
+        width: 77
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad26a6d1b3bae5540b4897b21c32207b
+      internalID: -1129169760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_31
+      rect:
+        serializedVersion: 2
+        x: 624
+        y: 133
+        width: 130
+        height: 35
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 11517b7dc5a27a04a96a7d13d0bd8d8b
+      internalID: -595365722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_34
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 79
+        width: 89
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d3b807c7d2d246489b7abf15e5e2864
+      internalID: -1739782417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_35
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 2
+        width: 77
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f369a19f143618e44aacb314e1b36720
+      internalID: -1110786808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_39
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 25
+        width: 54
+        height: 54
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 18179c105e3440a43ae0320b403dc8f0
+      internalID: -685361173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Frame UI Buttons&Visuals_43
+      rect:
+        serializedVersion: 2
+        x: 523
+        y: 18
+        width: 62
+        height: 61
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26fc1d058217a71449d2fc2f335a6060
+      internalID: -433782763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Frame UI Buttons&Visuals_0: 1301043324
+      Frame UI Buttons&Visuals_1: -1207203515
+      Frame UI Buttons&Visuals_10: -93328833
+      Frame UI Buttons&Visuals_11: -805412339
+      Frame UI Buttons&Visuals_12: -1105718023
+      Frame UI Buttons&Visuals_13: 957710357
+      Frame UI Buttons&Visuals_14: -1710086293
+      Frame UI Buttons&Visuals_15: 1144305148
+      Frame UI Buttons&Visuals_16: -711636630
+      Frame UI Buttons&Visuals_17: 2037919824
+      Frame UI Buttons&Visuals_18: 673886312
+      Frame UI Buttons&Visuals_19: 687455696
+      Frame UI Buttons&Visuals_2: 1728375471
+      Frame UI Buttons&Visuals_20: -503641971
+      Frame UI Buttons&Visuals_21: 619114654
+      Frame UI Buttons&Visuals_22: 2075444597
+      Frame UI Buttons&Visuals_23: -718557663
+      Frame UI Buttons&Visuals_24: -939995508
+      Frame UI Buttons&Visuals_25: -784561413
+      Frame UI Buttons&Visuals_26: 743415332
+      Frame UI Buttons&Visuals_27: 1515260345
+      Frame UI Buttons&Visuals_28: 505769965
+      Frame UI Buttons&Visuals_29: -1129169760
+      Frame UI Buttons&Visuals_3: -887461827
+      Frame UI Buttons&Visuals_30: -1034288044
+      Frame UI Buttons&Visuals_31: -595365722
+      Frame UI Buttons&Visuals_32: 2067340017
+      Frame UI Buttons&Visuals_33: 1360545661
+      Frame UI Buttons&Visuals_34: -1739782417
+      Frame UI Buttons&Visuals_35: -1110786808
+      Frame UI Buttons&Visuals_36: 1710632601
+      Frame UI Buttons&Visuals_37: 1048435621
+      Frame UI Buttons&Visuals_38: 109039807
+      Frame UI Buttons&Visuals_39: -685361173
+      Frame UI Buttons&Visuals_4: -1478610293
+      Frame UI Buttons&Visuals_40: 1577669820
+      Frame UI Buttons&Visuals_41: -917939337
+      Frame UI Buttons&Visuals_42: 540608863
+      Frame UI Buttons&Visuals_43: -433782763
+      Frame UI Buttons&Visuals_44: 722180151
+      Frame UI Buttons&Visuals_45: -952918331
+      Frame UI Buttons&Visuals_46: -333204660
+      Frame UI Buttons&Visuals_47: 1898818709
+      Frame UI Buttons&Visuals_48: 250366832
+      Frame UI Buttons&Visuals_49: 1621614712
+      Frame UI Buttons&Visuals_5: -145266901
+      Frame UI Buttons&Visuals_50: 158859407
+      Frame UI Buttons&Visuals_6: -2117295352
+      Frame UI Buttons&Visuals_7: -944470600
+      Frame UI Buttons&Visuals_8: -1845638321
+      Frame UI Buttons&Visuals_9: -1514360600
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
