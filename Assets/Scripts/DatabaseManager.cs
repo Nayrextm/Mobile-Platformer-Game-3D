@@ -1,470 +1,22 @@
 ﻿
-//using UnityEngine;
-//using SQLite4Unity3d;
-//using System.IO;
-
-//public class DatabaseManager : MonoBehaviour
-//{
-//    public static DatabaseManager Instance { get; private set; }
-//    private SQLiteConnection _connection;
-//    private readonly string _dbName = "GeoDashStats.db";
-
-//    private void Awake()
-//    {
-//        if (Instance == null)
-//        {
-//            Instance = this;
-//            DontDestroyOnLoad(gameObject);
-
-//            Application.targetFrameRate = 60;
-
-//            InitializeDatabase();
-//        }
-//        else
-//        {
-//            Destroy(gameObject);
-//        }
-//    }
-
-//    private void InitializeDatabase()
-//    {
-//        string dbPath = string.Empty;
-
-//#if UNITY_EDITOR
-
-//        string folderPath = Path.Combine(Application.dataPath, "Database");
-
-
-//        if (!Directory.Exists(folderPath))
-//        {
-//            Directory.CreateDirectory(folderPath);
-//        }
-//        dbPath = Path.Combine(folderPath, _dbName);
-//#else
-
-//        dbPath = Path.Combine(Application.persistentDataPath, _dbName);
-//#endif
-
-//        Debug.Log($"Шлях до бази даних: {dbPath}");
-
-//        _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-
-//        _connection.CreateTable<LevelStat>();
-//        _connection.CreateTable<CollectiblesStat>();
-//        _connection.CreateTable<CoinState>();
-
-//        var wallet = GetWalletStat();
-//        if (wallet == null)
-//        {
-//            _connection.Insert(new CollectiblesStat { Id = 1, TotalCoins = 0 });
-//        }
-//    }
-
-//    private CollectiblesStat GetWalletStat()
-//    {
-//        return _connection.Table<CollectiblesStat>().Where(x => x.Id == 1).FirstOrDefault();
-//    }
-
-//    public LevelStat GetLevelData(string levelName)
-//    {
-//        return _connection.Find<LevelStat>(levelName);
-//    }
-
-//    public void SaveStarCoins(string levelName, bool[] coinsCollectedInRun)
-//    {
-//        var stat = GetLevelData(levelName);
-
-//        bool isNewRecord = false;
-//        if (stat == null)
-//        {
-//            stat = new LevelStat { LevelID = levelName };
-//            isNewRecord = true;
-//        }
-
-//        bool needsUpdate = false;
-
-//        if (coinsCollectedInRun[0] && !stat.StarCoin1) { stat.StarCoin1 = true; needsUpdate = true; }
-//        if (coinsCollectedInRun[1] && !stat.StarCoin2) { stat.StarCoin2 = true; needsUpdate = true; }
-//        if (coinsCollectedInRun[2] && !stat.StarCoin3) { stat.StarCoin3 = true; needsUpdate = true; }
-
-//        if (isNewRecord)
-//        {
-//            _connection.Insert(stat);
-//        }
-//        else if (needsUpdate)
-//        {
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public bool IsStarCoinCollected(string levelName, int coinIndex)
-//    {
-//        var stat = GetLevelData(levelName);
-//        if (stat == null) return false;
-
-//        return coinIndex switch
-//        {
-//            0 => stat.StarCoin1,
-//            1 => stat.StarCoin2,
-//            2 => stat.StarCoin3,
-//            _ => false,
-//        };
-//    }
-
-//    public void AddCoins(int amount)
-//    {
-//        var stat = GetWalletStat();
-//        if (stat != null)
-//        {
-//            stat.TotalCoins += amount;
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public int GetTotalCoins()
-//    {
-//        var stat = GetWalletStat();
-//        return stat != null ? stat.TotalCoins : 0;
-//    }
-
-//    public bool IsCoinCollected(string coinID)
-//    {
-//        return _connection.Find<CoinState>(coinID) != null;
-//    }
-
-//    public void MarkCoinAsCollected(string coinID)
-//    {
-//        _connection.InsertOrReplace(new CoinState { UniqueID = coinID });
-//    }
-
-//    public void SaveProgress(string levelName, int newAttempts, float timeDelta)
-//    {
-//        var record = GetLevelData(levelName);
-//        if (record != null)
-//        {
-//            record.TotalAttempts += newAttempts;
-//            record.TotalTime += timeDelta;
-//            _connection.Update(record);
-//        }
-//        else
-//        {
-//            var newRecord = new LevelStat
-//            {
-//                LevelID = levelName,
-//                TotalAttempts = newAttempts,
-//                TotalTime = timeDelta
-//            };
-//            _connection.Insert(newRecord);
-//        }
-//    }
-
-//    public void DeleteAllData()
-//    {
-//        _connection.DeleteAll<LevelStat>();
-//        _connection.DeleteAll<CoinState>();
-
-//        var stat = GetWalletStat();
-//        if (stat != null)
-//        {
-//            stat.TotalCoins = 0;
-//            _connection.Update(stat);
-//        }
-//        Debug.Log("Всі дані видалено!");
-//    }
-
-//    public int GetTotalCollectedStarCoins()
-//    {
-//        int totalCount = 0;
-//        var allLevels = _connection.Table<LevelStat>();
-
-//        foreach (var level in allLevels)
-//        {
-//            if (level.StarCoin1) totalCount++;
-//            if (level.StarCoin2) totalCount++;
-//            if (level.StarCoin3) totalCount++;
-//        }
-//        return totalCount;
-//    }
-
-//    public void MarkLevelComplete(string levelName)
-//    {
-//        var stat = GetLevelData(levelName);
-//        if (stat == null)
-//        {
-//            stat = new LevelStat { LevelID = levelName, IsCompleted = true };
-//            _connection.Insert(stat);
-//        }
-//        else if (!stat.IsCompleted)
-//        {
-//            stat.IsCompleted = true;
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public bool IsLevelCompleted(string levelName)
-//    {
-//        var stat = GetLevelData(levelName);
-//        return stat != null && stat.IsCompleted;
-//    }
-//}
-
-//Поганий варіант по оптимізації нижче! 
-
-//using UnityEngine;
-//using SQLite4Unity3d;
-//using System.IO;
-//using System.Collections.Generic;
-
-//public class DatabaseManager : MonoBehaviour
-//{
-//    public static DatabaseManager Instance { get; private set; }
-//    private SQLiteConnection _connection;
-//    private readonly string _dbName = "GeoDashStats.db";
-
-//    private HashSet<int> _collectedCoinsCache = new HashSet<int>();
-
-//    private void Awake()
-//    {
-//        if (Instance == null)
-//        {
-//            Instance = this;
-//            DontDestroyOnLoad(gameObject);
-
-
-//            Application.targetFrameRate = 60;
-
-//            InitializeDatabase();
-//        }
-//        else
-//        {
-//            Destroy(gameObject);
-//        }
-//    }
-
-//    private void InitializeDatabase()
-//    {
-//        string dbPath = string.Empty;
-
-//#if UNITY_EDITOR
-//        string folderPath = Path.Combine(Application.dataPath, "Database");
-//        if (!Directory.Exists(folderPath))
-//        {
-//            Directory.CreateDirectory(folderPath);
-//        }
-//        dbPath = Path.Combine(folderPath, _dbName);
-//#else
-//        dbPath = Path.Combine(Application.persistentDataPath, _dbName);
-//#endif
-
-//        Debug.Log($"Шлях до бази даних: {dbPath}");
-
-//        _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-
-
-//        _connection.CreateTable<LevelStat>();
-//        _connection.CreateTable<CollectiblesStat>();
-//        _connection.CreateTable<CoinState>();
-
-
-//        var wallet = GetWalletStat();
-//        if (wallet == null)
-//        {
-//            _connection.Insert(new CollectiblesStat { Id = 1, TotalCoins = 0 });
-//        }
-
-
-//        LoadCoinsIntoCache();
-//    }
-
-
-//    private void LoadCoinsIntoCache()
-//    {
-//        _collectedCoinsCache.Clear();
-//        var allCollectedCoins = _connection.Table<CoinState>();
-//        foreach (var coin in allCollectedCoins)
-//        {
-//            _collectedCoinsCache.Add(coin.UniqueID);
-//        }
-//    }
-
-//    public bool IsCoinAlreadyCollectedInDB(int coinID)
-//    {
-
-//        return _collectedCoinsCache.Contains(coinID);
-//    }
-
-//    public void CollectCoinImmediate(int coinID, int coinValue)
-//    {
-//        if (!_collectedCoinsCache.Contains(coinID))
-//        {
-
-//            _collectedCoinsCache.Add(coinID);
-
-
-//            _connection.InsertOrReplace(new CoinState { UniqueID = coinID });
-
-
-//            AddCoins(coinValue);
-//        }
-//    }
-
-
-//    private CollectiblesStat GetWalletStat()
-//    {
-//        return _connection.Table<CollectiblesStat>().Where(x => x.Id == 1).FirstOrDefault();
-//    }
-
-//    public void AddCoins(int amount)
-//    {
-//        var stat = GetWalletStat();
-//        if (stat != null)
-//        {
-//            stat.TotalCoins += amount;
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public int GetTotalCoins()
-//    {
-//        var stat = GetWalletStat();
-//        return stat != null ? stat.TotalCoins : 0;
-//    }
-
-
-//    public LevelStat GetLevelData(string levelName)
-//    {
-//        return _connection.Find<LevelStat>(levelName);
-//    }
-
-//    public void SaveStarCoins(string levelName, bool[] coinsCollectedInRun)
-//    {
-//        var stat = GetLevelData(levelName);
-//        bool isNewRecord = false;
-
-//        if (stat == null)
-//        {
-//            stat = new LevelStat { LevelID = levelName };
-//            isNewRecord = true;
-//        }
-
-//        bool needsUpdate = false;
-
-//        if (coinsCollectedInRun[0] && !stat.StarCoin1) { stat.StarCoin1 = true; needsUpdate = true; }
-//        if (coinsCollectedInRun[1] && !stat.StarCoin2) { stat.StarCoin2 = true; needsUpdate = true; }
-//        if (coinsCollectedInRun[2] && !stat.StarCoin3) { stat.StarCoin3 = true; needsUpdate = true; }
-
-//        if (isNewRecord)
-//        {
-//            _connection.Insert(stat);
-//        }
-//        else if (needsUpdate)
-//        {
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public bool IsStarCoinCollected(string levelName, int coinIndex)
-//    {
-//        var stat = GetLevelData(levelName);
-//        if (stat == null) return false;
-
-//        return coinIndex switch
-//        {
-//            0 => stat.StarCoin1,
-//            1 => stat.StarCoin2,
-//            2 => stat.StarCoin3,
-//            _ => false,
-//        };
-//    }
-
-//    public int GetTotalCollectedStarCoins()
-//    {
-//        int totalCount = 0;
-//        var allLevels = _connection.Table<LevelStat>();
-
-//        foreach (var level in allLevels)
-//        {
-//            if (level.StarCoin1) totalCount++;
-//            if (level.StarCoin2) totalCount++;
-//            if (level.StarCoin3) totalCount++;
-//        }
-//        return totalCount;
-//    }
-
-
-//    public void SaveProgress(string levelName, int newAttempts, float timeDelta)
-//    {
-//        var record = GetLevelData(levelName);
-//        if (record != null)
-//        {
-//            record.TotalAttempts += newAttempts;
-//            record.TotalTime += timeDelta;
-//            _connection.Update(record);
-//        }
-//        else
-//        {
-//            var newRecord = new LevelStat
-//            {
-//                LevelID = levelName,
-//                TotalAttempts = newAttempts,
-//                TotalTime = timeDelta
-//            };
-//            _connection.Insert(newRecord);
-//        }
-//    }
-
-//    public void MarkLevelComplete(string levelName)
-//    {
-//        var stat = GetLevelData(levelName);
-//        if (stat == null)
-//        {
-//            stat = new LevelStat { LevelID = levelName, IsCompleted = true };
-//            _connection.Insert(stat);
-//        }
-//        else if (!stat.IsCompleted)
-//        {
-//            stat.IsCompleted = true;
-//            _connection.Update(stat);
-//        }
-//    }
-
-//    public bool IsLevelCompleted(string levelName)
-//    {
-//        var stat = GetLevelData(levelName);
-//        return stat != null && stat.IsCompleted;
-//    }
-
-
-//    public void DeleteAllData()
-//    {
-//        _connection.DeleteAll<LevelStat>();
-//        _connection.DeleteAll<CoinState>();
-
-//        var stat = GetWalletStat();
-//        if (stat != null)
-//        {
-//            stat.TotalCoins = 0;
-//            _connection.Update(stat);
-//        }
-
-//        _collectedCoinsCache.Clear(); 
-//        Debug.Log("Всі дані видалено!");
-//    }
-//}
 using UnityEngine;
 using SQLite4Unity3d;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Networking;
 
 public class DatabaseManager : MonoBehaviour
 {
     public static DatabaseManager Instance { get; private set; }
+
+    // ПРОФЕСІЙНИЙ ПІДХІД: Флаг для інших скриптів, який каже, чи можна вже звертатися до БД
+    public bool IsReady { get; private set; }
+
     private SQLiteConnection _connection;
     private readonly string _dbName = "GeoDashStats.db";
 
-
-    //private HashSet<int> _collectedCoinsCache = new HashSet<int>();
     private HashSet<string> _collectedCoinsCache = new HashSet<string>();
     private CollectiblesStat _cachedWallet;
     private List<CoinState> _coinsToSaveToDisk = new List<CoinState>();
@@ -477,32 +29,81 @@ public class DatabaseManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeDatabase();
+
+            // Запускаємо правильну асинхронну ініціалізацію
+            StartCoroutine(InitializeDatabaseAsync());
         }
-        else { Destroy(gameObject); }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    private void InitializeDatabase()
+    private IEnumerator InitializeDatabaseAsync()
     {
-        string dbPath = "";
-#if UNITY_EDITOR
+        string dbPath = Path.Combine(Application.persistentDataPath, _dbName);
+
+#if !UNITY_EDITOR
+        // Якщо файлу на пристрої гравця ще немає - асинхронно дістаємо його
+        if (!File.Exists(dbPath))
+        {
+            string sourcePath = Path.Combine(Application.streamingAssetsPath, _dbName);
+
+            if (sourcePath.Contains("://") || sourcePath.Contains(":///"))
+            {
+                using (UnityWebRequest request = UnityWebRequest.Get(sourcePath))
+                {
+                    // Асинхронне очікування
+                    yield return request.SendWebRequest(); 
+
+                    if (request.result == UnityWebRequest.Result.Success)
+                    {
+                        File.WriteAllBytes(dbPath, request.downloadHandler.data);
+                        Debug.Log("БД успішно скопійована з APK (Асинхронно)!");
+                    }
+                    else
+                    {
+                        Debug.LogError("Помилка копіювання БД на Android: " + request.error);
+                    }
+                }
+            }
+            else
+            {
+                if (File.Exists(sourcePath)) File.Copy(sourcePath, dbPath);
+            }
+        }
+#else
+        // Логіка для зручної роботи в Unity Editor
         string folderPath = Path.Combine(Application.dataPath, "Database");
         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         dbPath = Path.Combine(folderPath, _dbName);
-#else
-        dbPath = Path.Combine(Application.persistentDataPath, _dbName);
 #endif
-        _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
+
+        // Передаємо підготовлений шлях до фінального підключення
+        ConnectAndCache(dbPath);
+
+        // ВАЖЛИВИЙ РЯДОК: Кажемо компілятору, що корутина успішно завершила роботу. 
+        // Це виправляє помилку "not all code paths return a value".
+        yield break;
+    }
+
+    private void ConnectAndCache(string finalPath)
+    {
+        _connection = new SQLiteConnection(finalPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
+
         _connection.CreateTable<LevelStat>();
         _connection.CreateTable<CollectiblesStat>();
         _connection.CreateTable<CoinState>();
-
         _connection.CreateTable<UserSettings>();
-
         _connection.CreateTable<UnlockedItem>();
 
         LoadDataToCache();
+
+        // СИГНАЛ УСІЙ ГРІ: База завантажена, розпакована і готова до роботи!
+        IsReady = true;
     }
+
+    // ... (ТУТ ЗАЛИШАЄТЬСЯ ВЕСЬ ТВІЙ ПОПЕРЕДНІЙ КОД БЕЗ ЗМІН: GetLevelData, SaveProgress тощо) ...
 
 
     public int GetSelectedSkinID()
