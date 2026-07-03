@@ -8614,7 +8614,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.36477977, g: 0.36477977, b: 0.36477977, a: 1}
+  m_Color: {r: 0.14509805, g: 0.14509805, b: 0.14509805, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20040,7 +20040,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "early prototype \nBuild Pre-Alpha 0.5.0"
+  m_text: 'Early acsess
+
+    Build Pre-Alpha 0.6.0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6728db2f3448dc54eb798270183246ff, type: 2}
   m_sharedMaterial: {fileID: 8418799715657391938, guid: 6728db2f3448dc54eb798270183246ff, type: 2}

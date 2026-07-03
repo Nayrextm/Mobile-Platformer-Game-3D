@@ -1,6 +1,6 @@
 Library: C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --platform=Android
---backend=burst-llvm-16
+--backend=burst-llvm-18
 --target=ARMV7A_NEON32
 --global-safety-checks-setting=Off
 --meta-data-generation=False
@@ -9,7 +9,7 @@ Library: C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstli
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.47f1/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\UnityProjects\Mobile-Platformer-Game-3D\Library\Burst
 --output=C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -25,7 +25,7 @@ Library: C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstli
 --method=Unity.Jobs.IJobForExtensions+ForJobStruct`1[[UnityEngine.Rendering.Universal.LightMinMaxZJob, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::Execute(UnityEngine.Rendering.Universal.LightMinMaxZJob&, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|System.IntPtr, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089|System.IntPtr, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089|Unity.Jobs.LowLevel.Unsafe.JobRanges&, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089)--2230a143748f5ecbc3a89a75bf0ad747
 --method=Unity.Burst.Intrinsics.X86, Unity.Burst, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::DoGetCSRTrampoline()--89425a97f3f500fa810ad03f0c382542
 --platform=Android
---backend=burst-llvm-16
+--backend=burst-llvm-18
 --target=ARMV7A_NEON32
 --global-safety-checks-setting=Off
 --disable-safety-checks
@@ -36,7 +36,7 @@ Library: C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstli
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.47f1/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\UnityProjects\Mobile-Platformer-Game-3D\Library\Burst
 --output=C:\UnityProjects\Mobile-Platformer-Game-3D\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/

@@ -16,20 +16,20 @@ MonoBehaviour:
   - color: {r: 0, g: 0.003921509, b: 1, a: 1}
     price: 0
   - color: {r: 0, g: 1, b: 0.0044851303, a: 1}
-    price: 0
+    price: 3
   - color: {r: 1, g: 0.7323544, b: 0, a: 1}
-    price: 0
+    price: 3
   - color: {r: 1, g: 0.20912158, b: 0, a: 1}
-    price: 0
+    price: 3
   - color: {r: 1, g: 0.025420183, b: 0, a: 1}
-    price: 0
+    price: 3
   - color: {r: 0, g: 1, b: 0.99137115, a: 1}
-    price: 0
+    price: 3
   - color: {r: 0.46037197, g: 0, b: 1, a: 1}
-    price: 0
+    price: 4
   - color: {r: 1, g: 0, b: 0.2951851, a: 1}
-    price: 0
+    price: 4
   - color: {r: 1, g: 1, b: 1, a: 1}
-    price: 0
+    price: 5
   - color: {r: 0, g: 0, b: 0, a: 1}
-    price: 1
+    price: 5
