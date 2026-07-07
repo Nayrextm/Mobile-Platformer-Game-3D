@@ -1,5 +1,4 @@
-﻿
-//using UnityEngine;
+﻿//using UnityEngine;
 //using UnityEngine.SceneManagement;
 //using System.Collections;
 //using UnityEngine.EventSystems;
@@ -11,7 +10,6 @@
 //{
 //    [Header("Visuals")]
 //    [SerializeField] private Transform _visualModel;
-//    //Не використовується для обертання -> [SerializeField] private float _rotationSpeed = 360f;
 //    [SerializeField] private TrailRenderer _trail;
 
 //    [Header("Ghost Settings")]
@@ -43,11 +41,18 @@
 //    [SerializeField] private float _groundCheckDistance = 0.6f;
 //    [SerializeField] private Vector3 _groundCheckOffset = Vector3.zero;
 
-//    [Header("Effects")]
-//    [SerializeField] private ParticleSystem _jumpParticles;
-//    [SerializeField] private ParticleSystem _deathParticles;
-//    [SerializeField] private ParticleSystem _spiderTeleportParticles;
-//    [SerializeField] private ParticleSystem _spiderLandParticles;
+//    [Header("Effects (Object Pool)")]
+//    [SerializeField] private GameObject _jumpParticles;
+//    [SerializeField] private string _jumpPoolTag = "JumpDust";
+
+//    [SerializeField] private GameObject _deathParticles;
+//    [SerializeField] private string _deathPoolTag = "DeathExplosion";
+
+//    [SerializeField] private GameObject _spiderTeleportParticles;
+//    [SerializeField] private string _spiderTeleportPoolTag = "Spark";
+
+//    [SerializeField] private GameObject _spiderLandParticles;
+//    [SerializeField] private string _spiderLandPoolTag = "SpiderLand";
 
 //    [Header("Audio SFX")]
 //    [SerializeField] private AudioClip _jumpSfx;
@@ -63,7 +68,6 @@
 //    private LineRenderer _spiderLine;
 //    private Renderer[] _modelRenderers;
 
-
 //    private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
 //    private float _defaultSpeed;
 //    private Vector3 _originalScale;
@@ -75,8 +79,7 @@
 //    private bool _isDead = false;
 //    private bool _isGrounded = false;
 //    private bool _jumpRequested = false;
-//    private bool _isHoldingInput = false; 
-
+//    private bool _isHoldingInput = false;
 
 //    private bool _isGravityMode = false;
 //    private bool _isSpiderMode = false;
@@ -86,7 +89,6 @@
 
 //    private Transform _currentZipline;
 //    private float _currentZiplineSpeedMod = 1f;
-
 
 //    public float ForwardSpeed
 //    {
@@ -137,9 +139,7 @@
 //    {
 //        if (_isDead) return;
 
-
-//        GroundCheck();
-
+//        //GroundCheck();
 //        HandleInput();
 //        UpdateTimers();
 //        ProcessJumpLogic();
@@ -148,7 +148,6 @@
 
 //    private void HandleInput()
 //    {
-
 //        _isHoldingInput = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0) || (Input.touchCount > 0);
 
 //        bool isPressedDown = Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ||
@@ -220,8 +219,6 @@
 
 //    private void FixedUpdate()
 //    {
-//        CheckFrontCollision(); 
-
 //        if (_isZiplineMode && _currentZipline != null)
 //        {
 //            ProcessZiplineMovement();
@@ -230,6 +227,7 @@
 
 //        if (!_rb.isKinematic)
 //        {
+//            GroundCheck();
 //            ProcessStandardPhysics();
 //        }
 //    }
@@ -238,20 +236,20 @@
 //    {
 //        Vector3 zipDirection = _currentZipline.right;
 //        Vector3 zipOrigin = _currentZipline.position;
-//        Vector3 playerDelta = transform.position - zipOrigin;
+
+//        Vector3 playerDelta = _rb.position - zipOrigin;
 //        Vector3 projectedDelta = Vector3.Project(playerDelta, zipDirection);
-//        Vector3 idealPositionOnLine = zipOrigin + projectedDelta;
+//        Vector3 exactPositionOnLine = zipOrigin + projectedDelta;
 
-//        float stepDistance = (_ziplineBaseSpeed * _currentZiplineSpeedMod) * Time.fixedDeltaTime;
-//        Vector3 nextPosition = idealPositionOnLine + (zipDirection * stepDistance);
-//        Vector3 smoothedPos = Vector3.Lerp(transform.position, nextPosition, Time.fixedDeltaTime * _ziplineSnapSpeed);
+//        Vector3 snapVector = exactPositionOnLine - _rb.position;
+//        Vector3 targetVelocity = (zipDirection * _ziplineBaseSpeed * _currentZiplineSpeedMod) + (snapVector * _ziplineSnapSpeed);
 
-//        _rb.MovePosition(smoothedPos);
+//        _rb.velocity = targetVelocity;
 
 //        if (_visualModel != null)
 //        {
 //            Quaternion targetRot = Quaternion.LookRotation(zipDirection);
-//            _visualModel.rotation = Quaternion.Lerp(_visualModel.rotation, targetRot, Time.fixedDeltaTime * 10f);
+//            _visualModel.rotation = Quaternion.Lerp(_visualModel.rotation, targetRot, Time.fixedDeltaTime * 15f);
 //        }
 //    }
 
@@ -266,7 +264,15 @@
 //        if (_jumpRequested)
 //        {
 //            currentVel.y = _jumpForce * _gravityScale;
-//            if (_jumpParticles) _jumpParticles.Play();
+
+//            if (_jumpParticles != null)
+//            {
+//                if (PoolManager.Instance != null)
+//                    PoolManager.Instance.SpawnFromPool(_jumpPoolTag, transform.position, Quaternion.identity);
+//                else
+//                    Instantiate(_jumpParticles, transform.position, Quaternion.identity);
+//            }
+
 //            if (_audioSource && _jumpSfx) _audioSource.PlayOneShot(_jumpSfx);
 //            _jumpRequested = false;
 //            _coyoteTimeCounter = 0f;
@@ -275,13 +281,10 @@
 //        _rb.velocity = currentVel;
 //    }
 
-
-
 //    private void OnTriggerEnter(Collider other)
 //    {
 //        if (other.CompareTag("Zipline"))
 //        {
-
 //            if (_isHoldingInput) EnterZipline(other.transform);
 //        }
 //        else
@@ -320,8 +323,8 @@
 //        _jumpBufferCounter = 0f;
 
 //        ZiplineObject zipObj = zipTransform.GetComponent<ZiplineObject>();
-//        _currentZiplineSpeedMod = (zipObj != null) ? zipObj.speedMultiplier : 1f;
-//        _rb.velocity = zipTransform.right * (_ziplineBaseSpeed * _currentZiplineSpeedMod);
+//        _currentZiplineSpeedMod = (zipObj != null) ? zipObj.SpeedMultiplier : 1f;
+
 //    }
 
 //    private void ExitZipline(bool jumpOut)
@@ -339,40 +342,40 @@
 //        }
 //    }
 
-//    private void CheckFrontCollision()
+
+//    private void OnCollisionEnter(Collision collision) { ProcessPhysicalHit(collision); }
+//    //private void OnCollisionStay(Collision collision) { ProcessPhysicalHit(collision); }
+
+//    private void ProcessPhysicalHit(Collision collision)
 //    {
 //        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
-//        float rayLength = 0.51f + (Mathf.Abs(_rb.velocity.x) * Time.fixedDeltaTime);
-//        Vector3 originTop = transform.position + Vector3.up * 0.4f;
-//        Vector3 originBottom = transform.position + Vector3.up * -0.4f;
+//        int hitLayer = collision.gameObject.layer;
 
-//        RaycastHit hit;
-//        bool hasHit = Physics.Raycast(originTop, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer)) ||
-//                      Physics.Raycast(originBottom, Vector3.right, out hit, rayLength, _groundMask | (1 << _deadlyLayer));
-
-//        if (hasHit && hit.collider != null && !hit.collider.isTrigger)
+//        if (hitLayer == _deadlyLayer || collision.gameObject.CompareTag("Obstacle"))
 //        {
 //            Die();
+//            return;
 //        }
-//    }
 
-//    private void OnCollisionEnter(Collision collision)
-//    {
-//        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
-
-//        foreach (ContactPoint contact in collision.contacts)
+//        if (hitLayer == _safeLayer || hitLayer == _wallLayer)
 //        {
-//            if (_gravityScale > 0 && contact.normal.y > 0.5f) return;
-//            if (_gravityScale < 0 && contact.normal.y < -0.5f) return;
-
-//            int hitLayer = collision.gameObject.layer;
-//            if (hitLayer == _safeLayer || hitLayer == _wallLayer || hitLayer == _deadlyLayer)
+//            foreach (ContactPoint contact in collision.contacts)
 //            {
 //                if (contact.normal.x < -0.1f)
 //                {
-//                    Die();
-//                    return;
+//                    float hitHeightDiff = contact.point.y - transform.position.y;
+
+//                    if (_gravityScale > 0 && hitHeightDiff > -0.3f)
+//                    {
+//                        Die();
+//                        return;
+//                    }
+//                    else if (_gravityScale < 0 && hitHeightDiff < 0.3f)
+//                    {
+//                        Die();
+//                        return;
+//                    }
 //                }
 //            }
 //        }
@@ -419,9 +422,17 @@
 //        _rb.detectCollisions = false;
 
 //        if (_myCollider != null) _myCollider.enabled = false;
-//        if (_trail != null) _trail.emitting = false;
 
-//        if (_deathParticles) Instantiate(_deathParticles, transform.position, Quaternion.identity);
+//        if (_trail != null) { _trail.emitting = false; _trail.Clear(); }
+
+//        if (_deathParticles != null)
+//        {
+//            if (PoolManager.Instance != null)
+//                PoolManager.Instance.SpawnFromPool(_deathPoolTag, transform.position, Quaternion.identity);
+//            else
+//                Instantiate(_deathParticles, transform.position, Quaternion.identity);
+//        }
+
 //        if (_audioSource && _deathSfx) _audioSource.PlayOneShot(_deathSfx);
 
 //        StartCoroutine(DeathAnimation());
@@ -471,7 +482,13 @@
 //            transform.localScale = _originalScale;
 //        }
 
-//        if (_trail != null) { _trail.Clear(); _trail.emitting = true; }
+
+//        if (_trail != null)
+//        {
+//            _trail.Clear();
+//            _trail.emitting = true;
+//        }
+
 //        if (_spiderLine != null) _spiderLine.enabled = false;
 
 //        Physics.SyncTransforms();
@@ -513,7 +530,14 @@
 //        if (Physics.Raycast(transform.position, searchDirection, out hit, Mathf.Infinity, _groundMask))
 //        {
 //            if (_audioSource && _gravitySwitchSfx) _audioSource.PlayOneShot(_gravitySwitchSfx);
-//            if (_spiderTeleportParticles) Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
+
+//            if (_spiderTeleportParticles != null)
+//            {
+//                if (PoolManager.Instance != null)
+//                    PoolManager.Instance.SpawnFromPool(_spiderTeleportPoolTag, transform.position, Quaternion.identity);
+//                else
+//                    Instantiate(_spiderTeleportParticles, transform.position, Quaternion.identity);
+//            }
 
 //            Vector3 startPos = transform.position;
 //            float playerHeightOffset = 0.5f;
@@ -526,12 +550,17 @@
 //            _rb.interpolation = RigidbodyInterpolation.Interpolate;
 
 //            if (_trail != null) _trail.Clear();
-//            if (_spiderLandParticles) Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+
+//            if (_spiderLandParticles != null)
+//            {
+//                if (PoolManager.Instance != null)
+//                    PoolManager.Instance.SpawnFromPool(_spiderLandPoolTag, finalPos, Quaternion.LookRotation(hit.normal));
+//                else
+//                    Instantiate(_spiderLandParticles, finalPos, Quaternion.LookRotation(hit.normal));
+//            }
 
 //            StartCoroutine(DrawSpiderBeam(startPos, finalPos));
-
 //            FlipGravity();
-
 //            _rb.velocity = new Vector3(_rb.velocity.x, 0, 0);
 //        }
 //    }
@@ -551,9 +580,7 @@
 //    public void FlipGravity()
 //    {
 //        _gravityScale *= -1;
-
-//        if (_cameraFollow != null)
-//            _cameraFollow.SetGravityFlipped(_gravityScale < 0);
+//        if (_cameraFollow != null) _cameraFollow.SetGravityFlipped(_gravityScale < 0);
 //    }
 
 //    public void SetMode(string modeName)
@@ -586,6 +613,10 @@
 //        _rb.velocity = Vector3.zero;
 //        _rb.isKinematic = true;
 //        if (_myCollider != null) _myCollider.enabled = false;
+
+
+//        if (_trail != null) _trail.emitting = false;
+
 //        enabled = false;
 //    }
 
@@ -626,6 +657,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _jumpBufferTime = 0.15f;
     [SerializeField] private float _coyoteTime = 0.1f;
 
+    private Vector3 _currentMoveDirection = Vector3.right;
+    public Vector3 MoveDirection => _currentMoveDirection;
+
     [Header("Modes Settings")]
     [SerializeField] private float _gravityForce = 30f;
 
@@ -660,6 +694,7 @@ public class PlayerController : MonoBehaviour
     private CameraFollow _cameraFollow;
     private LineRenderer _spiderLine;
     private Renderer[] _modelRenderers;
+    private LaneRunner3D _laneRunner;
 
     private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
     private float _defaultSpeed;
@@ -683,6 +718,8 @@ public class PlayerController : MonoBehaviour
     private Transform _currentZipline;
     private float _currentZiplineSpeedMod = 1f;
 
+    private float _invulnerabilityEndTime = 0f;
+
     public float ForwardSpeed
     {
         get => _forwardSpeed;
@@ -697,6 +734,7 @@ public class PlayerController : MonoBehaviour
         _levelManager = FindObjectOfType<LevelManager>();
         _cameraFollow = FindObjectOfType<CameraFollow>();
         _spiderLine = GetComponent<LineRenderer>();
+        _laneRunner = GetComponent<LaneRunner3D>();
 
         if (_spiderLine != null) _spiderLine.enabled = false;
 
@@ -852,7 +890,9 @@ public class PlayerController : MonoBehaviour
         _rb.AddForce(customGravity, ForceMode.Acceleration);
 
         Vector3 currentVel = _rb.velocity;
-        currentVel.x = _forwardSpeed;
+        Vector3 targetXZVelocity = _currentMoveDirection * _forwardSpeed;
+        currentVel.x = targetXZVelocity.x;
+        currentVel.z = targetXZVelocity.z;
 
         if (_jumpRequested)
         {
@@ -887,7 +927,8 @@ public class PlayerController : MonoBehaviour
 
             if (isObstacle)
             {
-                if (_isGhostMode && _isPhasing) return;
+                //if (_isGhostMode && _isPhasing) return;
+                if (Time.time < _invulnerabilityEndTime || (_isGhostMode && _isPhasing)) return;
                 Die();
             }
         }
@@ -941,7 +982,7 @@ public class PlayerController : MonoBehaviour
 
     private void ProcessPhysicalHit(Collision collision)
     {
-        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
+        if (_isDead || Time.time < _invulnerabilityEndTime || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
         int hitLayer = collision.gameObject.layer;
 
@@ -955,7 +996,11 @@ public class PlayerController : MonoBehaviour
         {
             foreach (ContactPoint contact in collision.contacts)
             {
-                if (contact.normal.x < -0.1f)
+                // МАГІЯ ТУТ: Ми перевіряємо, чи "дивиться" нормаль стіни проти нашого поточного вектора руху
+                float hitDot = Vector3.Dot(contact.normal, _currentMoveDirection);
+
+                // Якщо hitDot менше нуля, значить стіна перед нами, а не збоку
+                if (hitDot < -0.1f) 
                 {
                     float hitHeightDiff = contact.point.y - transform.position.y;
 
@@ -998,6 +1043,8 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+        //Debug.LogWarning("ГРАВЕЦЬ ПОМЕР! Це викликав метод: " + new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name);
+
         if (_isDead) return;
         _isDead = true;
         _isZiplineMode = false;
@@ -1110,9 +1157,9 @@ public class PlayerController : MonoBehaviour
         _jumpsLeft = _extraAirJumps;
         _isZiplineMode = false;
 
-        Vector3 flatPos = transform.position;
-        flatPos.z = 0f;
-        transform.position = flatPos;
+        //Vector3 flatPos = transform.position;
+        //flatPos.z = 0f;
+        //transform.position = flatPos;
     }
 
     private void PerformSpiderTeleport()
@@ -1178,8 +1225,17 @@ public class PlayerController : MonoBehaviour
 
     public void SetMode(string modeName)
     {
+        // Встановлюємо точку в майбутньому. Жодних корутин чи апдейтів!
+        _invulnerabilityEndTime = Time.time + 0.1f;
+
         _isGravityMode = false; _isSpiderMode = false; _isGhostMode = false; SetPhasingState(false);
+
         if (_visualModel != null) _visualModel.localScale = Vector3.one;
+
+        if (_laneRunner != null && _laneRunner.enabled)
+        {
+            _laneRunner.DisableAndSnapToCenter();
+        }
 
         if (modeName == "Cube")
         {
@@ -1207,11 +1263,21 @@ public class PlayerController : MonoBehaviour
         _rb.isKinematic = true;
         if (_myCollider != null) _myCollider.enabled = false;
 
-       
+
         if (_trail != null) _trail.emitting = false;
 
         enabled = false;
     }
 
     public void ResetJumpsFromPad() { _jumpsLeft = _extraAirJumps; }
+
+    public void SetMoveDirection(Vector3 newDirection)
+    {
+        _currentMoveDirection = newDirection.normalized;
+
+        if (_visualModel != null && _currentMoveDirection != Vector3.zero)
+        {
+            _visualModel.rotation = Quaternion.LookRotation(_currentMoveDirection);
+        }
+    }
 }

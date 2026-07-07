@@ -21,6 +21,7 @@ public class PerspectivePortal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            // Просто кажемо камері увімкнути/вимкнути 3D. Кут вона тепер знайде сама!
             if (_cam != null) _cam.Set3DView(_enable3DView);
 
             // --- АВТОМАТИЗОВАНІ ВІЗУАЛЬНІ ЕФЕКТИ ---
@@ -29,19 +30,15 @@ public class PerspectivePortal : MonoBehaviour
                 Vector3 rippleSpawnPos = transform.position + transform.forward * _rippleOffset;
                 Quaternion fixedRotation = transform.rotation * Quaternion.Euler(0, 90, -90);
 
-                // Спавнимо об'єкт ефекту з пулу
                 GameObject rippleObj = PoolManager.Instance.SpawnFromPool("PortalRipple", rippleSpawnPos, fixedRotation);
 
-                // Автоматично масштабуємо ефект під розмір мешу порталу
                 if (rippleObj != null)
                 {
                     ParticleSystem ps = rippleObj.GetComponent<ParticleSystem>();
                     if (ps != null)
                     {
                         var main = ps.main;
-                        // Знаходимо найбільшу сторону порталу (ширину або висоту)
                         float maxPortalSize = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
-                        // Множимо на 1.5, щоб кругла хвиля гарантовано перекривала кути квадратного порталу
                         main.startSize = maxPortalSize * 1.5f;
                     }
                 }

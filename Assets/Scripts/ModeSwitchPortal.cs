@@ -45,20 +45,31 @@ public class ModeSwitchPortal : MonoBehaviour
             }
             else
             {
-                if (laneMove) laneMove.enabled = false;
+                // --- ЧИСТИЙ ТА ОПТИМІЗОВАНИЙ ВИХІД З РЕЖИМУ ---
+                if (laneMove && laneMove.enabled)
+                {
+                    // Запускаємо наш розумний метод вирівнювання на трасі
+                    laneMove.DisableAndSnapToCenter();
+                }
+                else if (laneMove)
+                {
+                    laneMove.enabled = false;
+                }
+
                 if (rb)
                 {
                     rb.interpolation = RigidbodyInterpolation.None;
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
                     rb.isKinematic = false;
-                    Vector3 flatPos = rb.position;
-                    flatPos.z = 0f;
-                    rb.position = flatPos;
+
+                    // ВИДАЛЕНО жорстку прив'язку flatPos.z = 0f, яка ламала координати!
                     rb.rotation = Quaternion.identity;
+
                     Physics.SyncTransforms();
                     rb.interpolation = RigidbodyInterpolation.Interpolate;
                 }
+
                 if (standardMove)
                 {
                     standardMove.enabled = true;
@@ -73,19 +84,15 @@ public class ModeSwitchPortal : MonoBehaviour
                 Vector3 rippleSpawnPos = transform.position + transform.forward * _rippleOffset;
                 Quaternion fixedRotation = transform.rotation * Quaternion.Euler(0, 90, -90);
 
-                // Спавнимо об'єкт ефекту з пулу
                 GameObject rippleObj = PoolManager.Instance.SpawnFromPool("PortalRipple", rippleSpawnPos, fixedRotation);
 
-                // Автоматично масштабуємо ефект під розмір мешу порталу
                 if (rippleObj != null)
                 {
                     ParticleSystem ps = rippleObj.GetComponent<ParticleSystem>();
                     if (ps != null)
                     {
                         var main = ps.main;
-                        // Знаходимо найбільшу сторону порталу (ширину або висоту)
                         float maxPortalSize = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
-                        // Множимо на 1.5, щоб кругла хвиля гарантовано перекривала кути квадратного порталу
                         main.startSize = maxPortalSize * 1.5f;
                     }
                 }
