@@ -9,14 +9,15 @@ public class FloatingIconFX : MonoBehaviour
     [SerializeField] private float _floatHeight = 0.5f;
 
     [Header("Налаштування Камери (Billboard)")]
-    [Tooltip("Якщо увімкнено, у 3D-режимі іконка автоматично обертатиметься до камери.")]
+    [Tooltip("Якщо увімкнено, іконка завжди дивитиметься в камеру (Billboard).")]
     [SerializeField] private bool _faceCamera = true;
 
     private SpriteRenderer _spriteRenderer;
     private Vector3 _startLocalPosition;
     private Sequence _animationSequence;
 
-    private Camera _mainCam;
+    // Кешуємо трансформ камери для кращої оптимізації, щоб не звертатися до Camera.main щокадру
+    private Transform _mainCamTransform;
 
     private void Awake()
     {
@@ -24,7 +25,11 @@ public class FloatingIconFX : MonoBehaviour
         _startLocalPosition = transform.localPosition;
         _spriteRenderer.enabled = false;
 
-        _mainCam = Camera.main;
+        // Кешуємо саме Transform камери, оскільки нам потрібен лише її forward вектор
+        if (Camera.main != null)
+        {
+            _mainCamTransform = Camera.main.transform;
+        }
     }
 
     public void PlayIconAnimation(Sprite iconSprite, float duration)
@@ -64,13 +69,12 @@ public class FloatingIconFX : MonoBehaviour
 
     private void LateUpdate()
     {
-        // РОЗУМНА ОПТИМІЗАЦІЯ: Обертаємося тільки якщо іконка світиться І камера зараз у 3D-режимі
-        if (_faceCamera && _spriteRenderer.enabled && _mainCam != null)
+        // Обертаємося, якщо дозволено, іконка активна (світиться) і камера знайдена.
+        // Ми прибрали перевірку на Is3DMode, бо SpriteRenderer має дивитися в камеру ЗАВЖДИ (і в 2.5D теж).
+        if (_faceCamera && _spriteRenderer.enabled && _mainCamTransform != null)
         {
-            if (CameraFollow.Instance != null && CameraFollow.Instance.Is3DMode)
-            {
-                transform.forward = _mainCam.transform.forward;
-            }
+            // Присвоюємо forward вектор камери. Це найшвидший і найстабільніший спосіб зробити Billboard для спрайтів.
+            transform.forward = _mainCamTransform.forward;
         }
     }
 
