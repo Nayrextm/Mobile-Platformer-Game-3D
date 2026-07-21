@@ -1,3 +1,4 @@
+
 //using UnityEngine;
 
 //[RequireComponent(typeof(Collider))]
@@ -12,9 +13,7 @@
 //    [SerializeField] private float _shakeMagnitude = 0.2f;
 
 //    [Header("Налаштування Іконки Режиму")]
-//    [Tooltip("Перетягніть сюди 2D Спрайт іконки для цього порталу (напр. іконку павука чи кораблика)")]
 //    [SerializeField] private Sprite _modeIcon;
-//    [Tooltip("Скільки секунд іконка буде висіти над гравцем (рекомендую від 1.5 до 2.5 секунд)")]
 //    [SerializeField] private float _iconDuration = 2.0f;
 
 //    [Header("Кольори для активації")]
@@ -30,29 +29,39 @@
 
 //    private void OnTriggerEnter(Collider other)
 //    {
-//        if (other.CompareTag("Player"))
+//        // Швидка перевірка тегу без виділення пам'яті
+//        if (!other.CompareTag("Player")) return;
+
+//        // 1. АКТИВАЦІЯ ІКОНКИ НА ГРАВЦІ (Оптимізовано)
+//        // Замість важкого GetComponentInChildren, використовуємо TryGetComponent на кореневому об'єкті
+//        // (Для цього вам потрібно додати публічне поле FloatingIconFX у ваш головний скрипт PlayerController)
+//        /* if (_modeIcon != null && other.TryGetComponent(out PlayerController player))
 //        {
-//            // 1. Зміна кольорів оточення
-//            if (BackgroundFX.Instance != null)
-//            {
-//                BackgroundFX.Instance.ChangeEnvironmentSmoothly(
-//                    _targetParticleColor, _targetSkyboxColor, _targetFogColor, _targetPlatformColor, _transitionDuration
-//                );
-//            }
+//            if (player.IconFX != null) player.IconFX.PlayIconAnimation(_modeIcon, _iconDuration);
+//        }
+//        */
 
-//            // 2. Трясіння камери
-//            if (_useCameraShake && CameraFollow.Instance != null)
-//            {
-//                CameraFollow.Instance.TriggerShake(_shakeDuration, _shakeMagnitude);
-//            }
+//        // Якщо ви поки не можете змінити PlayerController, використовуємо найшвидший варіант:
+//        FloatingIconFX iconFX = other.GetComponent<FloatingIconFX>(); // Повісьте скрипт іконки на той самий об'єкт, що й колайдер!
+//        if (iconFX == null) iconFX = other.GetComponentInChildren<FloatingIconFX>(); // Резервний варіант
 
-//            // 3. АКТИВАЦІЯ ІКОНКИ НА ГРАВЦІ
-//            // Шукаємо компонент FloatingIconFX у дочірніх об'єктах гравця
-//            FloatingIconFX iconFX = other.GetComponentInChildren<FloatingIconFX>();
-//            if (iconFX != null && _modeIcon != null)
-//            {
-//                iconFX.PlayIconAnimation(_modeIcon, _iconDuration);
-//            }
+//        if (iconFX != null && _modeIcon != null)
+//        {
+//            iconFX.PlayIconAnimation(_modeIcon, _iconDuration);
+//        }
+
+//        // 2. Зміна кольорів оточення
+//        if (BackgroundFX.Instance != null)
+//        {
+//            BackgroundFX.Instance.ChangeEnvironmentSmoothly(
+//                _targetParticleColor, _targetSkyboxColor, _targetFogColor, _targetPlatformColor, _transitionDuration
+//            );
+//        }
+
+//        // 3. Трясіння камери
+//        if (_useCameraShake && CameraFollow.Instance != null)
+//        {
+//            CameraFollow.Instance.TriggerShake(_shakeDuration, _shakeMagnitude);
 //        }
 //    }
 //}
@@ -89,22 +98,14 @@ public class ParticleColorTrigger : MonoBehaviour
         // Швидка перевірка тегу без виділення пам'яті
         if (!other.CompareTag("Player")) return;
 
-        // 1. АКТИВАЦІЯ ІКОНКИ НА ГРАВЦІ (Оптимізовано)
-        // Замість важкого GetComponentInChildren, використовуємо TryGetComponent на кореневому об'єкті
-        // (Для цього вам потрібно додати публічне поле FloatingIconFX у ваш головний скрипт PlayerController)
-        /* if (_modeIcon != null && other.TryGetComponent(out PlayerController player))
+        // 1. АКТИВАЦІЯ ІКОНКИ НА ГРАВЦІ (Максимально оптимізовано)
+        // Миттєво беремо PlayerController і звертаємося до вже збереженої іконки
+        if (other.TryGetComponent(out PlayerController player))
         {
-            if (player.IconFX != null) player.IconFX.PlayIconAnimation(_modeIcon, _iconDuration);
-        }
-        */
-
-        // Якщо ви поки не можете змінити PlayerController, використовуємо найшвидший варіант:
-        FloatingIconFX iconFX = other.GetComponent<FloatingIconFX>(); // Повісьте скрипт іконки на той самий об'єкт, що й колайдер!
-        if (iconFX == null) iconFX = other.GetComponentInChildren<FloatingIconFX>(); // Резервний варіант
-
-        if (iconFX != null && _modeIcon != null)
-        {
-            iconFX.PlayIconAnimation(_modeIcon, _iconDuration);
+            if (player.IconFX != null && _modeIcon != null)
+            {
+                player.IconFX.PlayIconAnimation(_modeIcon, _iconDuration);
+            }
         }
 
         // 2. Зміна кольорів оточення

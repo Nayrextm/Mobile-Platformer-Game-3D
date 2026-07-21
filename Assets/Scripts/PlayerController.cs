@@ -1,4 +1,5 @@
-﻿//using UnityEngine;
+﻿
+//using UnityEngine;
 //using UnityEngine.SceneManagement;
 //using System.Collections;
 //using UnityEngine.EventSystems;
@@ -32,6 +33,9 @@
 //    [SerializeField] private float _jumpForce = 12f;
 //    [SerializeField] private float _jumpBufferTime = 0.15f;
 //    [SerializeField] private float _coyoteTime = 0.1f;
+
+//    private Vector3 _currentMoveDirection = Vector3.right;
+//    public Vector3 MoveDirection => _currentMoveDirection;
 
 //    [Header("Modes Settings")]
 //    [SerializeField] private float _gravityForce = 30f;
@@ -67,6 +71,7 @@
 //    private CameraFollow _cameraFollow;
 //    private LineRenderer _spiderLine;
 //    private Renderer[] _modelRenderers;
+//    private LaneRunner3D _laneRunner;
 
 //    private int _playerLayer, _safeLayer, _deadlyLayer, _wallLayer;
 //    private float _defaultSpeed;
@@ -90,6 +95,8 @@
 //    private Transform _currentZipline;
 //    private float _currentZiplineSpeedMod = 1f;
 
+//    private float _invulnerabilityEndTime = 0f;
+
 //    public float ForwardSpeed
 //    {
 //        get => _forwardSpeed;
@@ -104,6 +111,7 @@
 //        _levelManager = FindObjectOfType<LevelManager>();
 //        _cameraFollow = FindObjectOfType<CameraFollow>();
 //        _spiderLine = GetComponent<LineRenderer>();
+//        _laneRunner = GetComponent<LaneRunner3D>();
 
 //        if (_spiderLine != null) _spiderLine.enabled = false;
 
@@ -259,7 +267,9 @@
 //        _rb.AddForce(customGravity, ForceMode.Acceleration);
 
 //        Vector3 currentVel = _rb.velocity;
-//        currentVel.x = _forwardSpeed;
+//        Vector3 targetXZVelocity = _currentMoveDirection * _forwardSpeed;
+//        currentVel.x = targetXZVelocity.x;
+//        currentVel.z = targetXZVelocity.z;
 
 //        if (_jumpRequested)
 //        {
@@ -294,7 +304,8 @@
 
 //            if (isObstacle)
 //            {
-//                if (_isGhostMode && _isPhasing) return;
+//                //if (_isGhostMode && _isPhasing) return;
+//                if (Time.time < _invulnerabilityEndTime || (_isGhostMode && _isPhasing)) return;
 //                Die();
 //            }
 //        }
@@ -348,7 +359,7 @@
 
 //    private void ProcessPhysicalHit(Collision collision)
 //    {
-//        if (_isDead || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
+//        if (_isDead || Time.time < _invulnerabilityEndTime || (_isGhostMode && _isPhasing) || _isZiplineMode) return;
 
 //        int hitLayer = collision.gameObject.layer;
 
@@ -362,7 +373,11 @@
 //        {
 //            foreach (ContactPoint contact in collision.contacts)
 //            {
-//                if (contact.normal.x < -0.1f)
+//                // МАГІЯ ТУТ: Ми перевіряємо, чи "дивиться" нормаль стіни проти нашого поточного вектора руху
+//                float hitDot = Vector3.Dot(contact.normal, _currentMoveDirection);
+
+//                // Якщо hitDot менше нуля, значить стіна перед нами, а не збоку
+//                if (hitDot < -0.1f) 
 //                {
 //                    float hitHeightDiff = contact.point.y - transform.position.y;
 
@@ -405,6 +420,8 @@
 
 //    public void Die()
 //    {
+//        //Debug.LogWarning("ГРАВЕЦЬ ПОМЕР! Це викликав метод: " + new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name);
+
 //        if (_isDead) return;
 //        _isDead = true;
 //        _isZiplineMode = false;
@@ -517,9 +534,9 @@
 //        _jumpsLeft = _extraAirJumps;
 //        _isZiplineMode = false;
 
-//        Vector3 flatPos = transform.position;
-//        flatPos.z = 0f;
-//        transform.position = flatPos;
+//        //Vector3 flatPos = transform.position;
+//        //flatPos.z = 0f;
+//        //transform.position = flatPos;
 //    }
 
 //    private void PerformSpiderTeleport()
@@ -585,8 +602,17 @@
 
 //    public void SetMode(string modeName)
 //    {
+//        // Встановлюємо точку в майбутньому. Жодних корутин чи апдейтів!
+//        _invulnerabilityEndTime = Time.time + 0.1f;
+
 //        _isGravityMode = false; _isSpiderMode = false; _isGhostMode = false; SetPhasingState(false);
+
 //        if (_visualModel != null) _visualModel.localScale = Vector3.one;
+
+//        if (_laneRunner != null && _laneRunner.enabled)
+//        {
+//            _laneRunner.DisableAndSnapToCenter();
+//        }
 
 //        if (modeName == "Cube")
 //        {
@@ -621,11 +647,30 @@
 //    }
 
 //    public void ResetJumpsFromPad() { _jumpsLeft = _extraAirJumps; }
+
+//    public void SetMoveDirection(Vector3 newDirection)
+//    {
+//        _currentMoveDirection = newDirection.normalized;
+
+//        if (_visualModel != null && _currentMoveDirection != Vector3.zero)
+//        {
+//            _visualModel.rotation = Quaternion.LookRotation(_currentMoveDirection);
+//        }
+//    }
 //}
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.EventSystems;
+
+// Додаємо перерахування режимів (enum) поза класом або всередині нього
+public enum PlayerMode
+{
+    Cube,
+    Ball,
+    Spider,
+    Ghost
+}
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
@@ -635,6 +680,10 @@ public class PlayerController : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private Transform _visualModel;
     [SerializeField] private TrailRenderer _trail;
+
+    // ДОДАНО: Посилання на ваш скрипт анімації іконки
+    [Tooltip("Посилання на дочірній об'єкт-холдер для іконок")]
+    public FloatingIconFX IconFX;
 
     [Header("Ghost Settings")]
     [SerializeField] private float _ghostAlpha = 0.3f;
@@ -770,7 +819,6 @@ public class PlayerController : MonoBehaviour
     {
         if (_isDead) return;
 
-        //GroundCheck();
         HandleInput();
         UpdateTimers();
         ProcessJumpLogic();
@@ -927,7 +975,6 @@ public class PlayerController : MonoBehaviour
 
             if (isObstacle)
             {
-                //if (_isGhostMode && _isPhasing) return;
                 if (Time.time < _invulnerabilityEndTime || (_isGhostMode && _isPhasing)) return;
                 Die();
             }
@@ -976,9 +1023,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
     private void OnCollisionEnter(Collision collision) { ProcessPhysicalHit(collision); }
-    //private void OnCollisionStay(Collision collision) { ProcessPhysicalHit(collision); }
 
     private void ProcessPhysicalHit(Collision collision)
     {
@@ -996,11 +1041,9 @@ public class PlayerController : MonoBehaviour
         {
             foreach (ContactPoint contact in collision.contacts)
             {
-                // МАГІЯ ТУТ: Ми перевіряємо, чи "дивиться" нормаль стіни проти нашого поточного вектора руху
                 float hitDot = Vector3.Dot(contact.normal, _currentMoveDirection);
 
-                // Якщо hitDot менше нуля, значить стіна перед нами, а не збоку
-                if (hitDot < -0.1f) 
+                if (hitDot < -0.1f)
                 {
                     float hitHeightDiff = contact.point.y - transform.position.y;
 
@@ -1043,8 +1086,6 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
-        //Debug.LogWarning("ГРАВЕЦЬ ПОМЕР! Це викликав метод: " + new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name);
-
         if (_isDead) return;
         _isDead = true;
         _isZiplineMode = false;
@@ -1122,7 +1163,6 @@ public class PlayerController : MonoBehaviour
             transform.localScale = _originalScale;
         }
 
-
         if (_trail != null)
         {
             _trail.Clear();
@@ -1152,14 +1192,12 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
 
-        SetMode("Cube");
+        // ДОДАНО: Використовуємо наш новий enum замість рядка
+        SetMode(PlayerMode.Cube);
+
         _gravityScale = 1f;
         _jumpsLeft = _extraAirJumps;
         _isZiplineMode = false;
-
-        //Vector3 flatPos = transform.position;
-        //flatPos.z = 0f;
-        //transform.position = flatPos;
     }
 
     private void PerformSpiderTeleport()
@@ -1223,9 +1261,9 @@ public class PlayerController : MonoBehaviour
         if (_cameraFollow != null) _cameraFollow.SetGravityFlipped(_gravityScale < 0);
     }
 
-    public void SetMode(string modeName)
+    // ДОДАНО: Перероблений швидкий метод з використанням enum
+    public void SetMode(PlayerMode mode)
     {
-        // Встановлюємо точку в майбутньому. Жодних корутин чи апдейтів!
         _invulnerabilityEndTime = Time.time + 0.1f;
 
         _isGravityMode = false; _isSpiderMode = false; _isGhostMode = false; SetPhasingState(false);
@@ -1237,14 +1275,22 @@ public class PlayerController : MonoBehaviour
             _laneRunner.DisableAndSnapToCenter();
         }
 
-        if (modeName == "Cube")
+        switch (mode)
         {
-            _gravityScale = 1f;
-            if (_cameraFollow) _cameraFollow.SetGravityFlipped(false);
+            case PlayerMode.Cube:
+                _gravityScale = 1f;
+                if (_cameraFollow) _cameraFollow.SetGravityFlipped(false);
+                break;
+            case PlayerMode.Ball:
+                _isGravityMode = true;
+                break;
+            case PlayerMode.Spider:
+                _isSpiderMode = true;
+                break;
+            case PlayerMode.Ghost:
+                _isGhostMode = true;
+                break;
         }
-        else if (modeName == "Ball") _isGravityMode = true;
-        else if (modeName == "Spider") _isSpiderMode = true;
-        else if (modeName == "Ghost") _isGhostMode = true;
     }
 
     public void SetSFXVolume(float volume) { if (_audioSource != null) _audioSource.volume = volume; }
@@ -1262,7 +1308,6 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = Vector3.zero;
         _rb.isKinematic = true;
         if (_myCollider != null) _myCollider.enabled = false;
-
 
         if (_trail != null) _trail.emitting = false;
 

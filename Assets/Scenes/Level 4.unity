@@ -22386,6 +22386,63 @@ Transform:
   - {fileID: 835549271}
   m_Father: {fileID: 1594380210}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1903835814
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -100.474014
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 26.093933
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
+      propertyPath: m_Name
+      value: CaveLevelForExportFixed
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e2626de07339e9e4baa64d819aa75bfb, type: 3}
 --- !u!1001 &1904670595
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27490,6 +27547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _visualModel: {fileID: 6531796195791571784}
   _trail: {fileID: 2729476280109276120}
+  IconFX: {fileID: 1266850600}
   _ghostAlpha: 0.3
   _safeLayerName: Ground
   _deadlyLayerName: Obstacle
@@ -28081,3 +28139,4 @@ SceneRoots:
   - {fileID: 380166384}
   - {fileID: 1490558436}
   - {fileID: 1210849413}
+  - {fileID: 1903835814}
