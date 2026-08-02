@@ -28948,6 +28948,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _visualModel: {fileID: 6531796195791571784}
   _trail: {fileID: 2729476280109276120}
+  IconFX: {fileID: 1266850600}
   _ghostAlpha: 0.3
   _safeLayerName: Ground
   _deadlyLayerName: Obstacle
