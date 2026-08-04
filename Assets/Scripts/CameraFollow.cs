@@ -195,6 +195,9 @@ public class CameraFollow : MonoBehaviour
     // Змінні для трясіння
     private float _shakeDuration = 0f;
     private float _shakeMagnitude = 0f;
+
+    public float FovModifier { get; set; } = 0f;
+
     private Vector3 _shakeOffset = Vector3.zero;
 
     private void Awake()
@@ -322,7 +325,7 @@ public class CameraFollow : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, _rotationSpeed * Time.deltaTime);
 
         // FOV та Туман
-        float targetFOV = Is3DMode ? _fov3D : _fov2D;
+        float targetFOV = (Is3DMode ? _fov3D : _fov2D) + FovModifier; // ДОДАНО: додаємо модифікатор
         _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, targetFOV, _fovSpeed * Time.deltaTime);
 
         float targetFogStart = Is3DMode ? _fogStart3D : _fogStart2D;
@@ -342,6 +345,8 @@ public class CameraFollow : MonoBehaviour
         _shakeDuration = 0f;
         _shakeOffset = Vector3.zero;
         _currentYRotation = 0f;
+
+        FovModifier = 0f;
 
         if (_target != null)
         {
