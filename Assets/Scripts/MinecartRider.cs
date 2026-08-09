@@ -15,18 +15,18 @@ public class MinecartRider : MonoBehaviour
     [SerializeField] private float _boostFovExpansion = 15f;
 
     [Header("Анімації (Процедурні + DOTween)")]
-    [Tooltip("Ривок при зміні лінії (X = боки, Z = вперед/назад)")]
     [SerializeField] private Vector3 _switchWobbleAngles = new Vector3(15f, 0f, 0f);
-    [Tooltip("Нахил носа під час спуску")]
     [SerializeField] private Vector3 _boostTiltAngles = new Vector3(0f, 0f, 8f);
-    [Tooltip("Хитання в сторони під час бусту")]
     [SerializeField] private Vector3 _boostSwayAngles = new Vector3(4f, 0f, 0f);
-    [Tooltip("Швидкість швидкісного коливання (більше = швидше, наприклад 12)")]
     [SerializeField] private float _boostSwaySpeed = 12f;
 
     [Header("Візуал Вагонетки (Холдер)")]
     [SerializeField] private GameObject _minecartModel;
     [SerializeField] private ParticleSystem _wheelSparks;
+    [Tooltip("Іскри, що вилітають тільки при старті та кінці розгону")]
+    [SerializeField] private ParticleSystem _boostTransitionSparks; // ДОДАНО
+    [Tooltip("Система частинок для ефекту вітру при розгоні")]
+    [SerializeField] private ParticleSystem _speedWindParticles;
 
     [Header("Звук")]
     [SerializeField] private AudioSource _cartAudioSource;
@@ -34,7 +34,6 @@ public class MinecartRider : MonoBehaviour
     [SerializeField] private AudioClip _boostSfx;
 
     private LaneRunner3D _laneRunner;
-
     private bool _isRiding = false;
     private float _baseSpeed;
     private float _targetSpeed;
@@ -44,7 +43,7 @@ public class MinecartRider : MonoBehaviour
     private Quaternion _originalModelRot;
     private bool _isBoosting = false;
 
-    // --- ЗМІННІ ДЛЯ АДИТИВНОЇ АНІМАЦІЇ ---
+    // Змінні для адитивної анімації
     private Vector3 _currentPitch = Vector3.zero;
     private Vector3 _currentSway = Vector3.zero;
     private Vector3 _wobbleOffset = Vector3.zero;
@@ -60,6 +59,9 @@ public class MinecartRider : MonoBehaviour
             _originalModelRot = _minecartModel.transform.localRotation;
             _minecartModel.SetActive(false);
         }
+
+        // ДОДАНО: Вітер має бути вимкненим на старті
+        if (_speedWindParticles != null) _speedWindParticles.Stop();
     }
 
     private void Start()
@@ -91,14 +93,11 @@ public class MinecartRider : MonoBehaviour
             _laneRunner.ForwardSpeed = Mathf.Lerp(_laneRunner.ForwardSpeed, _targetSpeed, Time.deltaTime * _accelerationSmoothness);
         }
 
-        // --- МАГІЯ ПРОЦЕДУРНОЇ АНІМАЦІЇ (Плавні переходи без конфліктів) ---
         if (_minecartModel != null)
         {
-            // 1. Плавний нахил носа (Pitch)
             Vector3 targetPitch = _isBoosting ? _boostTiltAngles : Vector3.zero;
             _currentPitch = Vector3.Lerp(_currentPitch, targetPitch, Time.deltaTime * 6f);
 
-            // 2. Плавне хитання (Sway) через математичну синусоїду
             if (_isBoosting)
             {
                 _swayTime += Time.deltaTime * _boostSwaySpeed;
@@ -106,12 +105,10 @@ public class MinecartRider : MonoBehaviour
             }
             else
             {
-                // М'яко затухає, коли буст закінчився
                 _currentSway = Vector3.Lerp(_currentSway, Vector3.zero, Time.deltaTime * 6f);
                 _swayTime = 0f;
             }
 
-            // 3. Збираємо всі 3 анімації разом (Оригінал + Нахил + Хитання + Ривок від зміни лінії)
             _minecartModel.transform.localRotation = Quaternion.Euler(_originalModelRot.eulerAngles + _currentPitch + _currentSway + _wobbleOffset);
         }
     }
@@ -122,15 +119,11 @@ public class MinecartRider : MonoBehaviour
 
         if (isTap && _minecartModel != null)
         {
-            // Вбиваємо ТІЛЬКИ анімацію ривка, інші рухи продовжують плавно працювати!
             DOTween.Kill("Wobble");
-
             float randomDir = Random.value > 0.5f ? 1f : -1f;
             Vector3 targetWobble = _switchWobbleAngles * randomDir;
 
             Sequence boatWobble = DOTween.Sequence().SetId("Wobble");
-
-            // Ми анімуємо не саму модель, а лише змінну _wobbleOffset
             boatWobble.Append(DOTween.To(() => _wobbleOffset, x => _wobbleOffset = x, targetWobble, 0.12f).SetEase(Ease.OutQuad))
                       .Append(DOTween.To(() => _wobbleOffset, x => _wobbleOffset = x, -targetWobble * 0.6f, 0.25f).SetEase(Ease.InOutSine))
                       .Append(DOTween.To(() => _wobbleOffset, x => _wobbleOffset = x, targetWobble * 0.25f, 0.2f).SetEase(Ease.InOutSine))
@@ -147,7 +140,6 @@ public class MinecartRider : MonoBehaviour
         _targetSpeed = forwardSpeed;
         _boostTimer = 0f;
 
-        // Скидаємо процедурні змінні
         _wobbleOffset = Vector3.zero;
         _currentPitch = Vector3.zero;
         _currentSway = Vector3.zero;
@@ -192,8 +184,10 @@ public class MinecartRider : MonoBehaviour
 
         if (_wheelSparks != null) _wheelSparks.Stop();
         if (_cartAudioSource != null) _cartAudioSource.Stop();
-
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = 0f;
+
+        // ДОДАНО: Жорстко вимикаємо вітер, якщо вистрибнули на швидкості
+        if (_speedWindParticles != null) _speedWindParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     public void TriggerDownhillBoost()
@@ -207,7 +201,10 @@ public class MinecartRider : MonoBehaviour
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = _boostFovExpansion;
         if (_cartAudioSource != null && _boostSfx != null) _cartAudioSource.PlayOneShot(_boostSfx);
 
-        // Ніяких викликів анімацій! Усе автоматично і плавно підхопить Update()
+        // ДОДАНО: Вмикаємо потік вітру
+        if (_speedWindParticles != null) _speedWindParticles.Play();
+
+        if (_boostTransitionSparks != null) _boostTransitionSparks.Play();
     }
 
     private void EndBoost()
@@ -215,6 +212,10 @@ public class MinecartRider : MonoBehaviour
         _isBoosting = false;
         _targetSpeed = _baseSpeed;
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = 0f;
-        // Плавне повернення координат також автоматично відбудеться в Update()
+
+        // ДОДАНО: Вітер перестає генеруватися, але старі смуги плавно долітають
+        if (_speedWindParticles != null) _speedWindParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
+        if (_boostTransitionSparks != null) _boostTransitionSparks.Play();
     }
 }
