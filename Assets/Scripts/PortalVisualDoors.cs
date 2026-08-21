@@ -26,10 +26,10 @@ public class PortalVisualDoors : MonoBehaviour
         if (_rightDoor != null) _rightDoorStartPos = _rightDoor.localPosition;
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        // якщо у вас Ї менеджер р≥вн≥в, розкоментуйте це, щоб двер≥ сам≥ закривалис€ при рестарт≥
-        // if (LevelManager.Instance != null) LevelManager.Instance.OnLevelReset += ResetDoors;
+        // ўоразу, коли LevelOptimizer активуЇ цей портал, двер≥ гарантовано закриваютьс€
+        ResetDoors();
     }
 
     private void OnDestroy()
