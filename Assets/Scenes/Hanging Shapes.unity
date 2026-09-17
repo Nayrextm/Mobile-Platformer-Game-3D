@@ -1596,8 +1596,8 @@ MonoBehaviour:
   _fov2D: 60
   _fogStart2D: 20
   _fogEnd2D: 150
-  _offset3D: {x: -8, y: 4, z: 0}
-  _rotation3D: {x: 20, y: 90, z: 0}
+  _offset3D: {x: 0, y: 4, z: -8}
+  _rotation3D: {x: 20, y: 0, z: 0}
   _fov3D: 60
   _fogStart3D: 20
   _fogEnd3D: 55
@@ -13926,7 +13926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de1a9b6617a8c80478e8a037085fe183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enterLaneMode: 0
+  _portalType: 0
   _rippleOffset: 1
 --- !u!65 &980888348
 BoxCollider:
@@ -15216,7 +15216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de1a9b6617a8c80478e8a037085fe183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enterLaneMode: 1
+  _portalType: 1
   _rippleOffset: 1
 --- !u!114 &1143580267
 MonoBehaviour:

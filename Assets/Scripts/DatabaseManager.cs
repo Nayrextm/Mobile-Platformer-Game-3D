@@ -47,19 +47,23 @@ public class DatabaseManager : MonoBehaviour
         // Якщо файлу на пристрої гравця ще немає - асинхронно дістаємо його
         if (!File.Exists(dbPath))
         {
-            string sourcePath = Path.Combine(Application.streamingAssetsPath, _dbName);
+            // ФІКС 1: Пряме склеювання шляху, щоб уникнути бекслешів на Android
+            string sourcePath = Application.streamingAssetsPath + "/" + _dbName;
 
             if (sourcePath.Contains("://") || sourcePath.Contains(":///"))
             {
                 using (UnityWebRequest request = UnityWebRequest.Get(sourcePath))
                 {
-                    // Асинхронне очікування
                     yield return request.SendWebRequest(); 
 
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        File.WriteAllBytes(dbPath, request.downloadHandler.data);
-                        Debug.Log("БД успішно скопійована з APK (Асинхронно)!");
+                        try 
+                        {
+                            File.WriteAllBytes(dbPath, request.downloadHandler.data);
+                            Debug.Log("БД успішно скопійована з APK (Асинхронно)!");
+                        }
+                        catch (System.Exception e) { Debug.LogError("Помилка запису: " + e.Message); }
                     }
                     else
                     {
@@ -69,7 +73,8 @@ public class DatabaseManager : MonoBehaviour
             }
             else
             {
-                if (File.Exists(sourcePath)) File.Copy(sourcePath, dbPath);
+                try { if (File.Exists(sourcePath)) File.Copy(sourcePath, dbPath); }
+                catch (System.Exception e) { Debug.LogError("Помилка копіювання: " + e.Message); }
             }
         }
 #else
@@ -79,11 +84,22 @@ public class DatabaseManager : MonoBehaviour
         dbPath = Path.Combine(folderPath, _dbName);
 #endif
 
-        // Передаємо підготовлений шлях до фінального підключення
-        ConnectAndCache(dbPath);
+        // ФІКС 2: Гарантований запуск, щоб гра не зависла на завантаженні
+        try
+        {
+            ConnectAndCache(dbPath);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Критична помилка БД: " + e.Message);
+            // Якщо файл пошкоджено, видаляємо і створюємо новий
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+                ConnectAndCache(dbPath);
+            }
+        }
 
-        // ВАЖЛИВИЙ РЯДОК: Кажемо компілятору, що корутина успішно завершила роботу. 
-        // Це виправляє помилку "not all code paths return a value".
         yield break;
     }
 
