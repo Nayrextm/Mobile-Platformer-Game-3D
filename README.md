@@ -1,7 +1,6 @@
 Bounce Dash
 An indie 3D mobile platformer focused on the full development cycle.
 
-(Insert a short, eye-catching GIF of your gameplay here)
 
 📌 Overview
 Bounce Dash is my first full-cycle indie project. My primary goal was to experience the entire game production pipeline: from designing core mechanics and optimizing for mobile, to building and publishing a playable cross-platform build (currently in Pre-Alpha).
