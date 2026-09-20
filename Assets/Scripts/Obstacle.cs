@@ -14,7 +14,6 @@ public class Obstacle : MonoBehaviour
             {
                 AudioSource.PlayClipAtPoint(hitSfx, transform.position);
             }
-            // Далі PlayerController сам обробляє смерть
         }
     }
 }

@@ -21,10 +21,8 @@ public class PerspectivePortal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Просто кажемо камері увімкнути/вимкнути 3D. Кут вона тепер знайде сама!
             if (_cam != null) _cam.Set3DView(_enable3DView);
 
-            // --- АВТОМАТИЗОВАНІ ВІЗУАЛЬНІ ЕФЕКТИ ---
             if (PoolManager.Instance != null)
             {
                 Vector3 rippleSpawnPos = transform.position + transform.forward * _rippleOffset;
@@ -44,7 +42,6 @@ public class PerspectivePortal : MonoBehaviour
                 }
             }
 
-            // Деформація гравця
             PlayerPortalFX fx = other.attachedRigidbody ? other.attachedRigidbody.GetComponent<PlayerPortalFX>() : other.GetComponent<PlayerPortalFX>();
             if (fx != null) fx.PlayPortalTransition();
         }

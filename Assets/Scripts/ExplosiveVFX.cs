@@ -32,7 +32,6 @@ public class ExplosiveVFX : MonoBehaviour
             CameraFollow.Instance.TriggerShake(_shakeDuration, _shakeMagnitude);
         }
 
-        // Створюємо секвенцію і прив'язуємо її до цього об'єкта
         Sequence explosionSequence = DOTween.Sequence().SetLink(gameObject);
 
         if (_dynamiteVisualModel != null)

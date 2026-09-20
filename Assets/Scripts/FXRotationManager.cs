@@ -26,12 +26,10 @@ public class FXRotationManager : MonoBehaviour
         float deltaTime = Time.deltaTime;
         int count = _activeItems.Count;
 
-        // Крутимо всі об'єкти в одному оптимізованому циклі
         for (int i = 0; i < count; i++)
         {
             if (_activeItems[i] != null)
             {
-                // Беремо готові градуси (RotationVelocity) і множимо на час
                 _activeItems[i].CachedTransform.Rotate(_activeItems[i].RotationVelocity * deltaTime, Space.Self);
             }
         }

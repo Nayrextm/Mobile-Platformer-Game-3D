@@ -59,35 +59,12 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    //    private void OnBuyTrailClicked(int index)
-    //    {
-    //        int itemPrice = _colorDatabase.GetPriceByIndex(index);
-
-    //        if (DatabaseManager.Instance.TrySpendCoins(itemPrice))
-    //        {
-    //            DatabaseManager.Instance.UnlockItem("TrailColor", index);
-
-    //#if UNITY_EDITOR
-    //            Debug.Log($"Колір #{index} успішно куплено за {itemPrice} монет!");
-    //#endif
-
-    //            RefreshExistingSlots(); 
-    //            UpdateCoinDisplay();    
-    //        }
-    //        else
-    //        {
-    //#if UNITY_EDITOR
-    //            Debug.LogWarning($"Не вистачає монет! Потрібно: {itemPrice}");
-    //#endif
-    //        }
-    //    }
     private void OnBuyTrailClicked(int index)
     {
         int itemPrice = _colorDatabase.GetPriceByIndex(index);
 
         if (DatabaseManager.Instance.TrySpendCoins(itemPrice))
         {
-            // Використовуємо універсальний ключ "Color" для обох систем
             DatabaseManager.Instance.UnlockItem("Color", index);
 
 #if UNITY_EDITOR

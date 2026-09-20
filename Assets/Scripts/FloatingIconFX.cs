@@ -16,7 +16,6 @@ public class FloatingIconFX : MonoBehaviour
     private Vector3 _startLocalPosition;
     private Sequence _animationSequence;
 
-    // Кешуємо трансформ камери для кращої оптимізації, щоб не звертатися до Camera.main щокадру
     private Transform _mainCamTransform;
 
     private void Awake()
@@ -25,7 +24,6 @@ public class FloatingIconFX : MonoBehaviour
         _startLocalPosition = transform.localPosition;
         _spriteRenderer.enabled = false;
 
-        // Кешуємо саме Transform камери, оскільки нам потрібен лише її forward вектор
         if (Camera.main != null)
         {
             _mainCamTransform = Camera.main.transform;
@@ -69,11 +67,8 @@ public class FloatingIconFX : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Обертаємося, якщо дозволено, іконка активна (світиться) і камера знайдена.
-        // Ми прибрали перевірку на Is3DMode, бо SpriteRenderer має дивитися в камеру ЗАВЖДИ (і в 2.5D теж).
         if (_faceCamera && _spriteRenderer.enabled && _mainCamTransform != null)
         {
-            // Присвоюємо forward вектор камери. Це найшвидший і найстабільніший спосіб зробити Billboard для спрайтів.
             transform.forward = _mainCamTransform.forward;
         }
     }

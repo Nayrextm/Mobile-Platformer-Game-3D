@@ -9,10 +9,8 @@ public class FXRotator : MonoBehaviour
     [Tooltip("Загальна швидкість обертання (градуси за секунду)")]
     [SerializeField] private float _speed = 90f;
 
-    // Менеджер забирає звідси готовий результат: Напрямок помножений на Швидкість
     public Vector3 RotationVelocity => _rotationAxis * _speed;
 
-    // Інкапсульований кеш Transform
     public Transform CachedTransform { get; private set; }
 
     private void Awake()

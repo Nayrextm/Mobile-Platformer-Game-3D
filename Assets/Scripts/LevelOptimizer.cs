@@ -23,11 +23,9 @@ public class LevelOptimizer : MonoBehaviour
             return;
         }
 
-      
         foreach (Transform child in _interactablesParent)
         {
             _levelObjects.Add(child.gameObject);
-            
             CheckDistanceAndToggle(child.gameObject, _playerCamera.position.x);
         }
 
@@ -36,7 +34,6 @@ public class LevelOptimizer : MonoBehaviour
 
     private IEnumerator OptimizationRoutine()
     {
-       
         WaitForSeconds wait = new WaitForSeconds(_checkInterval);
 
         while (true)
@@ -50,11 +47,9 @@ public class LevelOptimizer : MonoBehaviour
     {
         float camX = _playerCamera.position.x;
 
-       
         for (int i = 0; i < _levelObjects.Count; i++)
         {
             GameObject obj = _levelObjects[i];
-
            
             if (obj == null) continue;
 
@@ -67,7 +62,6 @@ public class LevelOptimizer : MonoBehaviour
         float distanceX = obj.transform.position.x - camX;
 
         bool shouldBeActive = distanceX > -_viewDistanceBackward && distanceX < _viewDistanceForward;
-
        
         if (obj.activeSelf != shouldBeActive)
         {

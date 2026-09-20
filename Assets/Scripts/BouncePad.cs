@@ -94,7 +94,6 @@ public class BouncePad : MonoBehaviour
                  .SetEase(Ease.OutQuad)
                  .SetLink(gameObject);
 
-        
         SetGlowColor(activeColor, glowIntensity);
 
         DOVirtual.DelayedCall(animationDuration, () =>
@@ -107,7 +106,6 @@ public class BouncePad : MonoBehaviour
     {
         if (padRenderer != null)
         {
-           
             padRenderer.GetPropertyBlock(propBlock);
             propBlock.SetColor(EmissionColorID, color * intensity);
             padRenderer.SetPropertyBlock(propBlock);

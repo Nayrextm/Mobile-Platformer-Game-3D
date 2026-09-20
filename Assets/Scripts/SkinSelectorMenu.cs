@@ -32,7 +32,6 @@ public class SkinSelectorMenu : MonoBehaviour
 
         if (DatabaseManager.Instance != null)
         {
-            
             switch (_mode)
             {
                 case SelectorMode.Skin:
@@ -80,7 +79,6 @@ public class SkinSelectorMenu : MonoBehaviour
         if (GetMaxCount() == 0) return;
 
         int checkingID = 0; 
-
         
         if (_mode == SelectorMode.Skin)
         {
@@ -98,7 +96,6 @@ public class SkinSelectorMenu : MonoBehaviour
             if (_skinNameText != null) _skinNameText.gameObject.SetActive(false);
             if (_colorPreviewImage != null) { _colorPreviewImage.gameObject.SetActive(true); _colorPreviewImage.color = currentColor; }
         }
-
        
         if (_selectButtonText != null)
         {

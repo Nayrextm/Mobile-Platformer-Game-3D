@@ -9,7 +9,6 @@ public class MainMenuMusic : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
 
-        // Завантажуємо налаштування саме для МЕНЮ
         float vol = PlayerPrefs.GetFloat("MenuMusicVolume", 1f);
         audioSource.volume = vol;
 

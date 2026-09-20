@@ -21,29 +21,23 @@ public class PortalVisualDoors : MonoBehaviour
 
     private void Awake()
     {
-        // Запам'ятовуємо стартові позиції дверей для рестарту
         if (_leftDoor != null) _leftDoorStartPos = _leftDoor.localPosition;
         if (_rightDoor != null) _rightDoorStartPos = _rightDoor.localPosition;
     }
 
     private void OnEnable()
     {
-        // Щоразу, коли LevelOptimizer активує цей портал, двері гарантовано закриваються
         ResetDoors();
     }
 
     private void OnDestroy()
     {
-        // if (LevelManager.Instance != null) LevelManager.Instance.OnLevelReset -= ResetDoors;
-
-        // Захист від витоків пам'яті
         if (_leftDoor != null) _leftDoor.DOKill();
         if (_rightDoor != null) _rightDoor.DOKill();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Якщо двері вже відкриті, ігноруємо
         if (_isOpened) return;
 
         if (other.CompareTag("Player"))
@@ -60,7 +54,7 @@ public class PortalVisualDoors : MonoBehaviour
         {
             _leftDoor.DOLocalMove(_leftDoorStartPos - _slideOffset, _duration)
                      .SetEase(_openEase)
-                     .SetLink(gameObject); // Прив'язка до життєвого циклу об'єкта
+                     .SetLink(gameObject);
         }
 
         if (_rightDoor != null)
@@ -71,7 +65,6 @@ public class PortalVisualDoors : MonoBehaviour
         }
     }
 
-    // Викликайте цей метод при рестарті рівня (смерті гравця)
     public void ResetDoors()
     {
         _isOpened = false;

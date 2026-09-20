@@ -15,7 +15,6 @@ public class SkinApplier : MonoBehaviour
        
         ApplyCustomization();
     }
-
    
     public void ApplyCustomization()
     {
@@ -29,7 +28,6 @@ public class SkinApplier : MonoBehaviour
         PreviewCustomization(currentSkinID, currentPlayerColorIndex, currentTrailColorIndex);
     }
 
-   
     public void PreviewCustomization(int skinID, int playerColorIndex, int trailColorIndex)
     {
         if (_skinDatabase == null || _colorDatabase == null || _visualContainer == null) return;
@@ -68,8 +66,6 @@ public class SkinApplier : MonoBehaviour
                 rend.SetPropertyBlock(propBlock);
             }
 
-
-            
             if (_trail != null)
             {
                 Gradient trailGradient = new Gradient();

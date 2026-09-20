@@ -1,25 +1,23 @@
 using UnityEngine;
-using TMPro; // Не забудь підключити TextMeshPro
+using TMPro;
 
 public class TotalDiamondsDisplay : MonoBehaviour
 {
     [Header("UI Елементи")]
-    public TMP_Text diamondsText; // Сюди перетягни свій текстовий об'єкт
+    public TMP_Text diamondsText; 
 
     [Header("Налаштування")]
-    public string prefix = "Diamonds: "; // Текст перед цифрою
+    public string prefix = "Diamonds: "; 
 
     void Start()
     {
         UpdateDisplay();
     }
 
-    // Можна викликати цей метод, якщо ти купив щось за алмази і треба оновити текст
     public void UpdateDisplay()
     {
         if (DatabaseManager.Instance != null)
         {
-            // Викликаємо метод підрахунку з DatabaseManager
             int amount = DatabaseManager.Instance.GetTotalCollectedStarCoins();
 
             if (diamondsText != null)

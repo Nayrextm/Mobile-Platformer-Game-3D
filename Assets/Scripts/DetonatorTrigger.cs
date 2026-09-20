@@ -20,13 +20,12 @@ public class DetonatorTrigger : MonoBehaviour
     [SerializeField] private AudioClip _pressSfx;
 
     private bool _isTriggered = false;
-    private Vector3 _originalLocalPosition; // Зберігаємо початкові координати замість кута
+    private Vector3 _originalLocalPosition;
 
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
 
-        // Запам'ятовуємо позицію ручки на старті
         if (_handleModel != null) _originalLocalPosition = _handleModel.localPosition;
     }
 
@@ -50,7 +49,7 @@ public class DetonatorTrigger : MonoBehaviour
         if (_handleModel != null)
         {
             _handleModel.DOKill();
-            // Запускаємо рух до нової позиції та жорстко прив'язуємо до життя об'єкта
+
             _handleModel.DOLocalMove(_pressedLocalPosition, _pressDuration)
                         .SetEase(_pressEase)
                         .SetLink(gameObject);
@@ -68,7 +67,6 @@ public class DetonatorTrigger : MonoBehaviour
         if (_handleModel != null)
         {
             _handleModel.DOKill();
-            // Повертаємо ручку на початкову позицію при рестарті
             _handleModel.localPosition = _originalLocalPosition;
         }
     }

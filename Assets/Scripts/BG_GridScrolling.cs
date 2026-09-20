@@ -10,8 +10,6 @@ public class BG_GridScrolling : MonoBehaviour
 
     private float _xScroll;
 
-
-
     private void Awake()
     {
         _meshRenderer = GetComponent<MeshRenderer>();
@@ -27,11 +25,7 @@ public class BG_GridScrolling : MonoBehaviour
     private void Scroll()
     {
         _xScroll = Time.time * _scrollSpeed;
-
         Vector2 offset = new Vector2(0f, _xScroll);
-
         _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", offset);
     }
-
-
 }

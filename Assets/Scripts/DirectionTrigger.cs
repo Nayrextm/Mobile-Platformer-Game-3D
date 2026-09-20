@@ -16,7 +16,6 @@ public class DirectionTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Кажемо гравцеві змінити напрямок, а камера сама відреагує на це
             if (other.attachedRigidbody.TryGetComponent(out PlayerController player))
             {
                 player.SetMoveDirection(_newMoveDirection);

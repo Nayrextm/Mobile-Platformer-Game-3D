@@ -30,7 +30,6 @@ public class UIDualColorButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         _originalScale = transform.localScale;
 
-        // Встановлюємо стартові кольори
         if (frontImage != null) frontImage.color = frontNormal;
         if (shadowImage != null) shadowImage.color = shadowNormal;
     }
@@ -62,7 +61,6 @@ public class UIDualColorButton : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (frontImage != null) frontImage.DOColor(frontHover, animDuration);
         if (shadowImage != null) shadowImage.DOColor(shadowHover, animDuration);
     }
-
     private void OnDisable()
     {
         transform.DOKill();

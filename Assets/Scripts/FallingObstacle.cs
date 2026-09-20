@@ -5,7 +5,7 @@ using DG.Tweening;
 public class FallingObstacle : MonoBehaviour
 {
     [Header("Зв'язки")]
-    [Tooltip("Перетягніть сюди дочірній об'єкт із самою 3D-моделлю та колайдером перешкоди")]
+    [Tooltip("Місце для дочірнього об'єкту із самою 3D-моделлю та колайдером перешкоди")]
     [SerializeField] private Transform _visualStalactite;
 
     [Tooltip("Система частинок удару об землю (Burst)")]
@@ -73,7 +73,6 @@ public class FallingObstacle : MonoBehaviour
 
         if (_visualStalactite == null) return;
 
-        // Зупиняємо сипучий пісок, бо сталактит зараз впаде
         if (_warningDustParticles != null) _warningDustParticles.Stop();
 
         Sequence fallSeq = DOTween.Sequence().SetLink(gameObject);
@@ -100,7 +99,6 @@ public class FallingObstacle : MonoBehaviour
             _visualStalactite.localRotation = _startRot;
         }
 
-        // Знову запускаємо пісок при рестарті рівня
         if (_warningDustParticles != null) _warningDustParticles.Play();
     }
 }

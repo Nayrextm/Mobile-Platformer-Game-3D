@@ -34,18 +34,15 @@ public class BackgroundFX : MonoBehaviour
     [Tooltip("Колір платформ при старті рівня")]
     [SerializeField] private Color _defaultPlatformColor = Color.white;
 
-    // Внутрішні компоненти
     private ParticleSystem _particleSystem;
     private ParticleSystem.MainModule _mainModule;
     private ParticleSystemRenderer _particleRenderer;
     private Material _particleMaterial;
     private Material _skyboxInstance;
 
-    // Закешовані ID шейдерів
     private int _skyColorPropertyID;
     private int _platformColorPropertyID;
 
-    // Збереження оригінального кольору файлу матеріалу (для редактора)
     private Color _originalAssetPlatformColor;
 
     private Coroutine _envTransitionCoroutine;
@@ -68,7 +65,6 @@ public class BackgroundFX : MonoBehaviour
             RenderSettings.skybox = _skyboxInstance;
         }
 
-        // Зберігаємо початковий колір матеріалу з файлів проєкту
         if (_enablePlatformChange && _platformMaterial != null)
         {
             _originalAssetPlatformColor = _platformMaterial.GetColor(_platformColorPropertyID);
@@ -86,8 +82,6 @@ public class BackgroundFX : MonoBehaviour
         if (LevelManager.Instance != null) LevelManager.Instance.OnLevelReset -= ResetToDefault;
     }
 
-    // ВАЖЛИВО: Захист для редактора Unity! 
-    // Повертаємо матеріал у початковий стан при зупинці гри.
     private void OnApplicationQuit()
     {
         if (_enablePlatformChange && _platformMaterial != null)
@@ -96,9 +90,6 @@ public class BackgroundFX : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Головний метод зміни (тепер приймає 4 кольори)
-    /// </summary>
     public void ChangeEnvironmentSmoothly(Color targetParticle, Color targetSkybox, Color targetFog, Color targetPlatform, float duration)
     {
         if (_envTransitionCoroutine != null) StopCoroutine(_envTransitionCoroutine);
@@ -117,7 +108,6 @@ public class BackgroundFX : MonoBehaviour
         if (_enableSkyboxChange && _skyboxInstance != null) _skyboxInstance.SetColor(_skyColorPropertyID, _defaultSkyboxColor);
         if (_enableFogChange) RenderSettings.fogColor = _defaultFogColor;
 
-        // Скидання платформ до локального дефолту рівня
         if (_enablePlatformChange && _platformMaterial != null)
             _platformMaterial.SetColor(_platformColorPropertyID, _defaultPlatformColor);
     }

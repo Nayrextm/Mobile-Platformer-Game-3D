@@ -4,9 +4,9 @@ using UnityEngine;
 public class PadController : MonoBehaviour
 {
     [Header("Speed Settings")]
-    public float targetSpeed = 12f;        // Швидкість, яку дає Pad
-    public bool isSlowPad = false;         // Чи це SlowPad
-    public float cooldown = 0.1f;          // Щоб не активувався двічі
+    public float targetSpeed = 12f;        
+    public bool isSlowPad = false;         
+    public float cooldown = 0.1f;         
 
     [Header("Visual Settings")]
     public Renderer padRenderer;
@@ -44,11 +44,10 @@ public class PadController : MonoBehaviour
             if (Time.time - lastActivation < cooldown) return;
             lastActivation = Time.time;
 
-            // Змінюємо швидкість
             if (isSlowPad)
-                player.ForwardSpeed = targetSpeed; // повільніше
+                player.ForwardSpeed = targetSpeed; 
             else
-                player.ForwardSpeed = targetSpeed; // швидше
+                player.ForwardSpeed = targetSpeed; 
 
             if (activateFX != null) activateFX.Play();
             if (activateSound != null) activateSound.Play();
@@ -61,7 +60,6 @@ public class PadController : MonoBehaviour
     {
         float t = 0f;
 
-        // 1️⃣ Пад стискається і світиться
         while (t < 1f)
         {
             t += Time.deltaTime * animSpeed;
@@ -72,16 +70,14 @@ public class PadController : MonoBehaviour
 
         t = 0f;
 
-        // 2️⃣ Пад повертається і зникає
         while (t < 1f)
         {
             t += Time.deltaTime * animSpeed;
-            transform.localScale = Vector3.Lerp(originalScale * hitScale, Vector3.zero, t); // поступове зникнення
+            transform.localScale = Vector3.Lerp(originalScale * hitScale, Vector3.zero, t);
             SetGlow(defaultColor, Mathf.Lerp(glowIntensity, 0f, t));
             yield return null;
         }
 
-        // Після завершення ховаємо
         gameObject.SetActive(false);
     }
 

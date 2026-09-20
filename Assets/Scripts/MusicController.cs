@@ -169,7 +169,6 @@ public class MusicController : MonoBehaviour
 
     private AudioSource _audioSource;
     private float _userVolume = 1f;
-
   
     private string VolumeKey => _context == MusicContext.Menu ? "MenuMusicVolume" : "GameMusicVolume";
 
@@ -186,12 +185,10 @@ public class MusicController : MonoBehaviour
     {
         if (_context == MusicContext.Gameplay)
         {
-           
             RestartMusic();
         }
         else
         {
-          
             if (!_audioSource.isPlaying) _audioSource.Play();
         }
     }
@@ -248,7 +245,6 @@ public class MusicController : MonoBehaviour
             _audioSource.volume = _userVolume;
         }
 
-       
         PlayerPrefs.SetFloat(VolumeKey, _userVolume);
     }
 }

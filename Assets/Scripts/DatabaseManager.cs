@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using SQLite4Unity3d;
 using System.IO;
 using System.Collections;
@@ -11,7 +10,6 @@ public class DatabaseManager : MonoBehaviour
 {
     public static DatabaseManager Instance { get; private set; }
 
-    // ПРОФЕСІЙНИЙ ПІДХІД: Флаг для інших скриптів, який каже, чи можна вже звертатися до БД
     public bool IsReady { get; private set; }
 
     private SQLiteConnection _connection;
@@ -30,7 +28,6 @@ public class DatabaseManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // Запускаємо правильну асинхронну ініціалізацію
             StartCoroutine(InitializeDatabaseAsync());
         }
         else
@@ -47,7 +44,6 @@ public class DatabaseManager : MonoBehaviour
         // Якщо файлу на пристрої гравця ще немає - асинхронно дістаємо його
         if (!File.Exists(dbPath))
         {
-            // ФІКС 1: Пряме склеювання шляху, щоб уникнути бекслешів на Android
             string sourcePath = Application.streamingAssetsPath + "/" + _dbName;
 
             if (sourcePath.Contains("://") || sourcePath.Contains(":///"))
@@ -78,13 +74,11 @@ public class DatabaseManager : MonoBehaviour
             }
         }
 #else
-        // Логіка для зручної роботи в Unity Editor
         string folderPath = Path.Combine(Application.dataPath, "Database");
         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         dbPath = Path.Combine(folderPath, _dbName);
 #endif
 
-        // ФІКС 2: Гарантований запуск, щоб гра не зависла на завантаженні
         try
         {
             ConnectAndCache(dbPath);
@@ -92,7 +86,6 @@ public class DatabaseManager : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.LogError("Критична помилка БД: " + e.Message);
-            // Якщо файл пошкоджено, видаляємо і створюємо новий
             if (File.Exists(dbPath))
             {
                 File.Delete(dbPath);
@@ -115,12 +108,8 @@ public class DatabaseManager : MonoBehaviour
 
         LoadDataToCache();
 
-        // СИГНАЛ УСІЙ ГРІ: База завантажена, розпакована і готова до роботи!
         IsReady = true;
     }
-
-    // ... (ТУТ ЗАЛИШАЄТЬСЯ ВЕСЬ ТВІЙ ПОПЕРЕДНІЙ КОД БЕЗ ЗМІН: GetLevelData, SaveProgress тощо) ...
-
 
     public int GetSelectedSkinID()
     {
@@ -180,14 +169,10 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    
-
-    
     public LevelStat GetLevelData(string levelName)
     {
         return _connection.Find<LevelStat>(levelName);
     }
-
 
     public void DeleteAllData()
     {
@@ -217,22 +202,6 @@ public class DatabaseManager : MonoBehaviour
         Debug.Log("Прогрес, покупки та інвентар успішно скинуто до заводських налаштувань!");
     }
 
-
-
-    //5.0 update - public bool IsCoinAlreadyCollectedInDB(int id) => _collectedCoinsCache.Contains(id);
-
-    //public void CollectCoinImmediate(int id, int value)
-    //{
-    //    if (!_collectedCoinsCache.Contains(id))
-    //    {
-    //        _collectedCoinsCache.Add(id);
-    //        _coinsToSaveToDisk.Add(new CoinState { UniqueID = id });
-    //        _cachedWallet.TotalCoins += value;
-
-
-    //        if (_coinsToSaveToDisk.Count >= 4) SaveAllPendingDataToDisk();
-    //    }
-    //}
     public bool IsCoinAlreadyCollectedInDB(string globalId) => _collectedCoinsCache.Contains(globalId);
 
     public void CollectCoinImmediate(string globalId, int value)
@@ -292,18 +261,6 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    //Старий 
-    //public int GetTotalCollectedStarCoins()
-    //{
-    //    int count = 0;
-    //    foreach (var l in _connection.Table<LevelStat>())
-    //    {
-    //        if (l.StarCoin1) count++;
-    //        if (l.StarCoin2) count++;
-    //        if (l.StarCoin3) count++;
-    //    }
-    //    return count;
-    //}
     public int GetTotalCollectedStarCoins()
     {
         if (_connection == null) return 0;
@@ -330,8 +287,6 @@ public class DatabaseManager : MonoBehaviour
     private void OnApplicationPause(bool isPaused) { if (isPaused) SaveAllPendingDataToDisk(); }
     private void OnApplicationQuit() => SaveAllPendingDataToDisk();
 
-
-
     public void SaveStarCoins(string lvl, bool[] stars)
     {
         var s = GetLevelData(lvl) ?? new LevelStat { LevelID = lvl };
@@ -354,14 +309,6 @@ public class DatabaseManager : MonoBehaviour
         s.IsCompleted = true;
         _connection.InsertOrReplace(s);
     }
-    //Старий 
-    //public void SaveProgress(string lvl, int att, float time)
-    //{
-    //    var s = GetLevelData(lvl) ?? new LevelStat { LevelID = lvl };
-    //    s.TotalAttempts += att;
-    //    s.TotalTime += time;
-    //    _connection.InsertOrReplace(s);
-    //}
 
     public void SaveProgress(string lvl, int att, double time)
     {
@@ -385,6 +332,6 @@ public class UnlockedItem
 {
     [SQLite4Unity3d.PrimaryKey, SQLite4Unity3d.AutoIncrement]
     public int Id { get; set; }
-    public string ItemCategory { get; set; } // Наприклад: "TrailColor", "Skin", "PlayerColor"
-    public int ItemID { get; set; }          // Індекс або ID купленого предмета
+    public string ItemCategory { get; set; } 
+    public int ItemID { get; set; }          
 }

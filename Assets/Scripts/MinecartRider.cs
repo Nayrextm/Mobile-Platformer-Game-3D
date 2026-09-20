@@ -24,7 +24,7 @@ public class MinecartRider : MonoBehaviour
     [SerializeField] private GameObject _minecartModel;
     [SerializeField] private ParticleSystem _wheelSparks;
     [Tooltip("Іскри, що вилітають тільки при старті та кінці розгону")]
-    [SerializeField] private ParticleSystem _boostTransitionSparks; // ДОДАНО
+    [SerializeField] private ParticleSystem _boostTransitionSparks;
     [Tooltip("Система частинок для ефекту вітру при розгоні")]
     [SerializeField] private ParticleSystem _speedWindParticles;
 
@@ -43,7 +43,6 @@ public class MinecartRider : MonoBehaviour
     private Quaternion _originalModelRot;
     private bool _isBoosting = false;
 
-    // Змінні для адитивної анімації
     private Vector3 _currentPitch = Vector3.zero;
     private Vector3 _currentSway = Vector3.zero;
     private Vector3 _wobbleOffset = Vector3.zero;
@@ -60,7 +59,6 @@ public class MinecartRider : MonoBehaviour
             _minecartModel.SetActive(false);
         }
 
-        // ДОДАНО: Вітер має бути вимкненим на старті
         if (_speedWindParticles != null) _speedWindParticles.Stop();
     }
 
@@ -186,7 +184,6 @@ public class MinecartRider : MonoBehaviour
         if (_cartAudioSource != null) _cartAudioSource.Stop();
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = 0f;
 
-        // ДОДАНО: Жорстко вимикаємо вітер, якщо вистрибнули на швидкості
         if (_speedWindParticles != null) _speedWindParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
@@ -201,7 +198,6 @@ public class MinecartRider : MonoBehaviour
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = _boostFovExpansion;
         if (_cartAudioSource != null && _boostSfx != null) _cartAudioSource.PlayOneShot(_boostSfx);
 
-        // ДОДАНО: Вмикаємо потік вітру
         if (_speedWindParticles != null) _speedWindParticles.Play();
 
         if (_boostTransitionSparks != null) _boostTransitionSparks.Play();
@@ -213,7 +209,6 @@ public class MinecartRider : MonoBehaviour
         _targetSpeed = _baseSpeed;
         if (CameraFollow.Instance != null) CameraFollow.Instance.FovModifier = 0f;
 
-        // ДОДАНО: Вітер перестає генеруватися, але старі смуги плавно долітають
         if (_speedWindParticles != null) _speedWindParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
 
         if (_boostTransitionSparks != null) _boostTransitionSparks.Play();

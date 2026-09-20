@@ -12,7 +12,6 @@ public class MinecartBoostPad : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        // Оптимізована перевірка: чи є на гравці вагонетка?
         if (other.attachedRigidbody != null && other.attachedRigidbody.TryGetComponent(out MinecartRider cart))
         {
             cart.TriggerDownhillBoost();

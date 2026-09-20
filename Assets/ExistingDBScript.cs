@@ -6,7 +6,6 @@ public class ExistingDBScript : MonoBehaviour {
 
 	public Text DebugText;
 
-	// Use this for initialization
 	void Start () {
 		var ds = new DataService ("existing.db");
 		//ds.CreateDB ();

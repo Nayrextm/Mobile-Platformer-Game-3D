@@ -147,7 +147,6 @@ public class AdvancedInventoryManager : MonoBehaviour
         }
         else
         {
-            // якщо це PlayerColor јЅќ TrailColor - шукаЇмо в баз≥ сп≥льний ключ "Color"
             category = "Color";
         }
 

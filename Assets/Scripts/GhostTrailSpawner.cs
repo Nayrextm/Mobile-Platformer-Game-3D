@@ -17,10 +17,8 @@ public class GhostTrailSpawner : MonoBehaviour
 
     void Update()
     {
-        
         _spawnTimer += Time.deltaTime;
 
-     
         if (_spawnTimer >= spawnInterval && Vector3.Distance(transform.position, _lastSpawnPosition) > minDistanceToSpawn)
         {
             SpawnGhost();
@@ -30,10 +28,7 @@ public class GhostTrailSpawner : MonoBehaviour
 
     void SpawnGhost()
     {
-      
         Instantiate(ghostPrefab, transform.position, transform.rotation);
-
-        
         _lastSpawnPosition = transform.position;
     }
 }

@@ -32,7 +32,6 @@ public class ExplosiveController : MonoBehaviour
         if (_hasDetonated) return;
         _hasDetonated = true;
 
-        // МИТТЄВО вимикаємо фізику
         if (_dynamiteCollider != null) _dynamiteCollider.enabled = false;
 
         foreach (var obstacle in _targetObstacles)
@@ -44,7 +43,6 @@ public class ExplosiveController : MonoBehaviour
             }
         }
 
-        // Передаємо візуалу колбек (FinishDetonation) для виклику в кінці анімації
         if (_vfxController != null) _vfxController.PlayExplosionEffects(_targetObstacles, FinishDetonation);
         else FinishDetonation();
     }
@@ -66,7 +64,7 @@ public class ExplosiveController : MonoBehaviour
         {
             if (obstacle != null)
             {
-                obstacle.transform.DOKill(); // Зупиняємо анімацію зникнення
+                obstacle.transform.DOKill();
                 obstacle.SetActive(true);
                 obstacle.transform.localScale = Vector3.one;
 

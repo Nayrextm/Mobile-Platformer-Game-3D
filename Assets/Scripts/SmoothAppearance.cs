@@ -14,7 +14,6 @@ public class SmoothAppearance : MonoBehaviour
 
     private void OnEnable()
     {
-        // Коли об'єкт вмикається оптимізатором, він починає рух знизу вгору
         Vector3 pos = transform.localPosition;
         pos.y = targetY + startYOffset;
         transform.localPosition = pos;
